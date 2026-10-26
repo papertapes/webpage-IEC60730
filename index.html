@@ -1,0 +1,1741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IEC 60730 × RA2E1 交互式学习课程</title>
+<style>
+/* IEC60730-RA2E1 课程样式 · 深色默认 + 浅色可切换 · 强调色 #009A9D */
+:root{
+  --bg:#14171c; --panel:#1c2129; --panel2:#222833; --line:#2e3644;
+  --txt:#d7dde6; --sub:#8b96a5; --accent:#009A9D; --accent-l:#3fd0d3;
+  --ok:#4caf7d; --warn:#e0a83c; --bad:#e06c5c;
+  --s:#5b8dd9; --r:#009A9D; --e:#e0a83c; --todo:#7a8494;
+  --chip:#2a3441; --code-bg:#101318;
+}
+body.light{
+  --bg:#f4f6f8; --panel:#ffffff; --panel2:#eef1f4; --line:#d8dee6;
+  --txt:#242a33; --sub:#5d6a7a; --accent-l:#007a7d;
+  --chip:#e3e9ef; --code-bg:#1c2129;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--txt);font-family:"Microsoft YaHei","PingFang SC",sans-serif;font-size:14px;line-height:1.75;}
+a{color:var(--accent-l);text-decoration:none;}
+/* 顶部导航 */
+#topbar{position:fixed;top:0;left:0;right:0;height:52px;background:var(--panel);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;padding:0 16px;z-index:100;}
+#topbar .logo{font-weight:700;color:#fff;font-size:15px;white-space:nowrap;}
+#topbar .logo b{color:var(--accent-l);}
+#searchBox{flex:1;max-width:420px;background:var(--chip);border:1px solid var(--line);border-radius:7px;padding:6px 12px;color:var(--txt);font-size:13px;outline:none;}
+#searchBox:focus{border-color:var(--accent);}
+#unitTitle{font-size:13px;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+.tbtn{background:var(--chip);border:1px solid var(--line);color:var(--sub);border-radius:7px;padding:5px 12px;cursor:pointer;font-size:12.5px;white-space:nowrap;}
+.tbtn:hover{color:var(--txt);border-color:var(--accent);}
+#progressMini{font-size:12px;color:var(--sub);white-space:nowrap;}
+#progressMini b{color:var(--accent-l);}
+/* 布局 */
+#layout{display:flex;padding-top:52px;min-height:100vh;}
+#sidebar{width:270px;flex-shrink:0;background:var(--panel);border-right:1px solid var(--line);height:calc(100vh - 52px);overflow-y:auto;padding:12px 0;position:sticky;top:52px;}
+.stage-l{padding:12px 16px 4px;font-size:11.5px;color:var(--sub);font-weight:700;letter-spacing:1px;}
+.nav-u{display:flex;align-items:center;gap:9px;padding:8px 16px;cursor:pointer;font-size:13px;color:var(--txt);border-left:3px solid transparent;}
+.nav-u:hover{background:var(--panel2);}
+.nav-u.active{background:var(--panel2);border-left-color:var(--accent);color:var(--accent-l);font-weight:600;}
+.nav-u .no{width:26px;height:22px;border-radius:6px;background:var(--chip);font-size:11px;display:flex;align-items:center;justify-content:center;color:var(--sub);flex-shrink:0;}
+.nav-u.done .no{background:rgba(76,175,125,.2);color:var(--ok);}
+#main{flex:1;min-width:0;padding:28px 36px 80px;max-width:920px;}
+/* 章节结构 */
+h1.ch{font-size:22px;color:#fff;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:6px;}
+body.light h1.ch{color:var(--txt);}
+h1.ch .no{color:var(--accent-l);}
+.ch-lead{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px;margin:16px 0;}
+.ch-lead h4{color:var(--accent-l);font-size:13px;margin-bottom:6px;}
+h2.sec{font-size:17px;color:var(--accent-l);margin:30px 0 12px;padding-left:10px;border-left:4px solid var(--accent);}
+h3{font-size:14.5px;color:var(--txt);margin:16px 0 8px;}
+p{margin:8px 0;color:var(--txt);}
+p.dim{color:var(--sub);font-size:13px;}
+ul,ol{margin:8px 0 8px 22px;}
+li{margin:4px 0;}
+li b{color:#fff;}
+body.light li b{color:var(--txt);}
+strong{color:#fff;}
+body.light strong{color:var(--txt);}
+/* 知识点卡片 */
+.kp{background:var(--panel);border:1px solid var(--line);border-radius:10px;margin:12px 0;overflow:hidden;}
+.kp-h{display:flex;align-items:center;gap:10px;padding:11px 16px;cursor:pointer;}
+.kp-h:hover{background:var(--panel2);}
+.kp-h .t{flex:1;font-weight:600;font-size:14px;color:#fff;}
+body.light .kp-h .t{color:var(--txt);}
+.kp-h .arr{color:var(--sub);transition:transform .25s;}
+.kp.open .kp-h .arr{transform:rotate(90deg);}
+.kp-b{max-height:0;overflow:hidden;transition:max-height .4s;padding:0 16px;}
+.kp.open .kp-b{max-height:2600px;padding:4px 16px 14px;border-top:1px solid var(--line);}
+.kp-b .def{font-size:13.5px;color:var(--accent-l);margin:8px 0;font-weight:600;}
+/* 来源标签 */
+.tag{display:inline-flex;align-items:center;font-size:10.5px;padding:1px 8px;border-radius:9px;cursor:pointer;border:1px solid;white-space:nowrap;vertical-align:1px;}
+.tag-S{color:var(--s);border-color:rgba(91,141,217,.5);background:rgba(91,141,217,.1);}
+.tag-R{color:var(--accent-l);border-color:rgba(0,154,157,.5);background:rgba(0,154,157,.1);}
+.tag-E{color:var(--warn);border-color:rgba(224,168,60,.5);background:rgba(224,168,60,.1);}
+.tag-T{color:var(--todo);border-color:rgba(122,132,148,.5);background:rgba(122,132,148,.12);}
+/* 已理解勾选 */
+.ckm{display:inline-flex;gap:6px;align-items:center;font-size:12px;color:var(--sub);cursor:pointer;flex-shrink:0;}
+.ckm input{accent-color:var(--ok);}
+.ckm.done{color:var(--ok);}
+/* 图 */
+.fig{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin:14px 0;text-align:center;}
+.fig svg{max-width:100%;height:auto;}
+.fig .cap{font-size:12px;color:var(--sub);margin-top:8px;}
+/* 代码 */
+.codebox{position:relative;background:var(--code-bg);border:1px solid var(--line);border-radius:9px;margin:12px 0;overflow:hidden;}
+.codebox .chd{display:flex;justify-content:space-between;align-items:center;padding:7px 14px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:12px;color:var(--sub);}
+.codebox .chd .src{font-family:Consolas,monospace;}
+.codebox pre{padding:12px 16px;overflow-x:auto;font-family:Consolas,"Courier New",monospace;font-size:12.5px;line-height:1.6;color:#b9c6d6;}
+.codebox .cp{background:var(--chip);border:1px solid var(--line);color:var(--sub);border-radius:5px;padding:2px 10px;cursor:pointer;font-size:11px;}
+.codebox .cp:hover{color:var(--accent-l);}
+pre .k{color:#6cb6ff;}pre .c{color:#6a7a8c;font-style:italic;}pre .s{color:#8fd0a0;}pre .n{color:#e0a83c;}pre .f{color:#3fd0d3;}
+/* 模拟器 */
+.sim{background:var(--panel);border:1px solid var(--accent);border-radius:10px;padding:16px;margin:16px 0;}
+.sim h4{color:var(--accent-l);font-size:14px;margin-bottom:4px;}
+.sim .snote{font-size:11.5px;color:var(--warn);margin-bottom:10px;}
+.sim .ctrl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0;}
+.sim button{background:var(--accent);border:none;color:#fff;border-radius:7px;padding:7px 16px;cursor:pointer;font-size:13px;}
+.sim button.ghost{background:var(--chip);border:1px solid var(--line);color:var(--sub);}
+.sim button:hover{opacity:.9;}
+.sim select,.sim input[type=range]{accent-color:var(--accent);}
+.sim select{background:var(--chip);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:5px 10px;}
+.sim .disp{background:var(--code-bg);border-radius:8px;padding:10px 14px;font-family:Consolas,monospace;font-size:13px;margin:10px 0;min-height:40px;white-space:pre-wrap;color:#b9c6d6;}
+.sim .bad{color:var(--bad)!important;}.sim .good{color:var(--ok)!important;}.sim .warnc{color:var(--warn)!important;}
+.cellbox{display:grid;grid-template-columns:repeat(16,1fr);gap:2px;margin:10px 0;}
+.cell{height:22px;border-radius:3px;background:var(--chip);font-size:8.5px;display:flex;align-items:center;justify-content:center;color:var(--sub);}
+.cell.c0{background:#26354a;color:#8fb8d8;}
+.cell.c1{background:#1f4a3a;color:#8fd0a0;}
+.cell.cur{outline:2px solid var(--accent);}
+/* 测验 */
+.quiz{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;margin:16px 0;}
+.quiz h4{color:var(--accent-l);font-size:14px;margin-bottom:10px;}
+.q{margin:14px 0;padding-bottom:12px;border-bottom:1px dashed var(--line);}
+.q .qt{font-weight:600;margin-bottom:8px;font-size:13.5px;}
+.q .opt{display:block;width:100%;text-align:left;background:var(--chip);border:1px solid var(--line);color:var(--txt);border-radius:7px;padding:8px 13px;margin:5px 0;cursor:pointer;font-size:13px;font-family:inherit;}
+.q .opt:hover{border-color:var(--accent);}
+.q .opt.right{border-color:var(--ok);color:var(--ok);}
+.q .opt.wrong{border-color:var(--bad);color:var(--bad);}
+.q .exp{display:none;font-size:12.5px;color:var(--sub);background:rgba(0,154,157,.06);border-left:3px solid var(--accent);padding:8px 12px;border-radius:0 6px 6px 0;margin-top:8px;}
+.q .exp.show{display:block;}
+/* 术语弹窗 */
+#glossPop{position:fixed;display:none;max-width:380px;background:var(--panel2);border:1px solid var(--accent);border-radius:9px;padding:12px 15px;font-size:13px;z-index:200;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+#glossPop b{color:var(--accent-l);}
+.term{border-bottom:1px dashed var(--accent-l);cursor:pointer;color:var(--accent-l);}
+/* 总结 */
+.summary{background:rgba(76,175,125,.06);border:1px solid rgba(76,175,125,.4);border-radius:10px;padding:14px 18px;margin:16px 0;}
+.summary h4{color:var(--ok);font-size:14px;margin-bottom:8px;}
+.nextch{color:var(--sub);font-size:12.5px;margin-top:8px;}
+/* 搜索结果 */
+#searchRes{position:fixed;top:56px;left:50%;transform:translateX(-50%);width:min(680px,92vw);max-height:60vh;overflow-y:auto;background:var(--panel2);border:1px solid var(--accent);border-radius:10px;z-index:150;display:none;box-shadow:0 10px 40px rgba(0,0,0,.5);}
+#searchRes .sr{padding:9px 16px;cursor:pointer;border-bottom:1px solid var(--line);font-size:13px;}
+#searchRes .sr:hover{background:var(--chip);}
+#searchRes .sr .t{color:#fff;font-weight:600;}
+#searchRes .sr .p{color:var(--sub);font-size:11.5px;}
+/* 来源卡 */
+#srcPop{position:fixed;display:none;width:min(400px,92vw);background:var(--panel2);border:1px solid var(--accent);border-radius:10px;padding:14px 16px;font-size:12.5px;z-index:200;box-shadow:0 8px 30px rgba(0,0,0,.5);}
+#srcPop h5{color:var(--accent-l);font-size:13px;margin-bottom:8px;}
+#srcPop dl{display:grid;grid-template-columns:78px 1fr;gap:3px 8px;}
+#srcPop dt{color:var(--sub);}#srcPop dd{color:var(--txt);word-break:break-all;}
+/* 底部进度 */
+#progressBar{position:fixed;bottom:0;left:0;right:0;height:6px;background:var(--chip);z-index:100;}
+#progressFill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-l));transition:width .3s;}
+@media(max-width:900px){#sidebar{display:none;}#main{padding:20px 18px 60px;}}
+::-webkit-scrollbar{width:9px;height:9px;}
+::-webkit-scrollbar-thumb{background:var(--chip);border-radius:5px;}
+
+</style>
+</head>
+<body>
+<nav id="topbar">
+  <span class="logo">IEC 60730 <b>×</b> RA2E1</span>
+  <input id="searchBox" placeholder="搜索章节 / 概念 / 术语…">
+  <span id="unitTitle"></span>
+  <span id="progressMini"></span>
+  <button class="tbtn" id="themeBtn">☀️ 浅色</button>
+</nav>
+<div id="layout">
+  <aside id="sidebar"></aside>
+  <main id="main"></main>
+</div>
+<div id="searchRes"></div>
+<div id="glossPop"></div>
+<div id="srcPop"></div>
+<div id="progressBar"><div id="progressFill"></div></div>
+
+<!-- 课程数据（以 .js 内嵌，保证 file:// 双击直开） -->
+<script>
+/* 课程数据 · 阶段一：标准基础（第01-04章） */
+window.CHP = window.CHP || {};
+Object.assign(window.CHP, {
+
+ch01: {
+  id:'ch01', no:'01', stage:1, title:'认识 IEC 60730',
+  lead:{
+    goal:'搞清楚 IEC 60730 是什么标准、管什么产品、和你写的固件有什么关系。',
+    why:'你将要为一个家电 MCU 固件集成安全自检——第一步是知道"为什么标准要求这些测试"。',
+    pre:'无。零基础可学。',
+    rel:'本章是全部后续章节的地基：第 3 章的术语、第 4 章的 Class 分级都从这里延伸。'
+  },
+  concepts:[
+    {t:'IEC 60730 系列标准的定位', tag:'S', src:'S-STD-DEF',
+     def:'IEC 60730 系列是针对"家用和类似用途的自动电气控制器"的安全标准。',
+     body:`<p>今天，自动电子控制系统不断扩展到各种应用中，系统的可靠性与安全性成为设计中的关键因素。IEC 60730 正是为这类<b>自动电子控制器</b>（Automatic Electrical Controls）制定的安全标准。</p>
+     <p>标准的对象不是整机（整机另有 IEC 60335 系列管），而是整机里面的那个"控制大脑"——你正在写固件的 MCU 控制器。两者通过引用互相衔接。</p>
+     <p><strong>与你最相关的部分</strong>：附录 H（Annex H）——专门规定使用软件的电子控制系统的要求，是嵌入式软件工程师阅读整个标准的入口。</p>`},
+    {t:'为什么家电软件需要安全标准', tag:'S', src:'S-STD-WHY',
+     def:'软件承担的控制一旦失效，可能造成设备不安全运行，标准要求通过设计与验证把这种风险控制在可接受范围。',
+     body:`<p>机电时代的控制器，失效模式是物理的（触点粘连、弹簧疲劳），人们积累了成熟的应对经验。MCU 普及后，一个位翻转就可能让程序跑飞——加热器不停机、门锁不落位。</p>
+     <p>标准应对的思路不是"让软件不出错"（做不到），而是：<strong>持续检测硬件与软件的失效，检测到后让系统进入安全状态</strong>。这就是贯穿全课程的闭环。</p>`},
+    {t:'IEC 60730 与 IEC 60335 的关系', tag:'R', src:'R-AN-NOTE1',
+     def:'60730 管控制器，60335 管整机；整机标准通过附录 R 引用 60730 对电子控制的要求。',
+     body:`<p>瑞萨应用笔记 R01AN5540EJ0101 的 Note 1 原文声明：该库的认证依据是欧洲标准 <b>EN 60335-1:2002/A1:2004 Annex R</b>，而 Annex R 只有孤零零一页——它把定义、信息和适用条款全部跳转到 IEC 60730-1。</p>
+     <p><span class="tag tag-T" data-src="T-CERT-CHAIN">待核实</span> 注意版本链：该声明引用的是 EN 60730-1:2000（2000 版），而 VDE 检测报告（2022 年）采用的已是 EN 60730-1:2016+A1:2019。你本地持有的正式文本是 <b>IEC 60730-1:2022</b>。认证所依据的版本与最新版本不一致，是真实工程中常见的版本管理课题。</p>`},
+    {t:'常见误解澄清', tag:'E', src:'E-CH01-MIS',
+     def:'五个最容易搞错的概念，先纠正再往下学。',
+     body:`<ul>
+     <li><b>误解一："用了认证过的自检库，产品就合规了。"</b> 错。库只是积木，集成的参数（CRC 范围、时钟常数、测试调度）和故障响应由你定义并自证。</li>
+     <li><b>误解二："芯片有硬件自检功能 = 满足标准。"</b> 硬件能力、厂商软件库、库的评估报告、应用的合规、整机的认证，是<b>五个不同层级</b>的结论，不能互相替代。</li>
+     <li><b>误解三："测试报告 = 认证证书。"</b> 你手头的 VDE 文件是 Prüfbericht（检测报告），报告首页明确写明"该报告不授权使用 VDE 认证标志"。<span class="tag tag-R" data-src="R-VDE-SCOPE">R｜VDE 检测报告</span></li>
+     <li><b>误解四："MCU 自检库测的是我的应用逻辑。"</b> 库只测 MCU 硬件层（CPU/RAM/Flash/时钟…），应用逻辑安全要靠你的设计。</li>
+     <li><b>误解五："60730-1 一本标准就够了。"</b> Part 1 是通用要求，具体产品（如洗衣机的水位控制、门锁）还可能涉及 Part 2 专项标准。<span class="tag tag-T" data-src="T-PART2">待核实</span></li></ul>`}
+  ],
+  figs:['fig-closure'],
+  figcaps:{'fig-closure':'图 1-1 · IEC 60730 的核心闭环：正常运行 ⇄ 故障检测 → 进入安全状态'},
+  sim:null,
+  quiz:[
+    {q:'IEC 60730 标准的直接对象是什么？', opts:['家用电器整机','家用和类似用途的自动电气控制器','所有工业控制器','电源适配器'], a:1,
+     exp:'60730 管的是"自动电气控制器"（如家电中的电子控制单元），整机安全由 IEC 60335 系列管辖，两者互相引用衔接。', src:'S-STD-DEF'},
+    {q:'嵌入式软件工程师阅读 IEC 60730-1 时，最核心的附录是？', opts:['Annex A','Annex D','Annex H','Annex Z'], a:2,
+     exp:'Annex H 专门规定使用软件的电子控制系统的要求（软件分级、自检表 H.11.12.1 等），是固件工程师的主战场。', src:'S-STD-DEF'},
+    {q:'判断题：VDE 出具的检测报告（Prüfbericht）等同于产品认证证书。', opts:['正确','错误'], a:1,
+     exp:'报告首页明确写明"该报告不授权使用 VDE 认证标志（Certification Mark）"，它只是一次单独调查的结果文件。检测报告、认证证书、认证标志是不同层级的文件。', src:'R-VDE-SCOPE'},
+    {q:'以下哪个结论层级与其他四个不同？', opts:['MCU 具备硬件 CRC 外设','厂商提供自检软件库','该软件库通过了 VDE 评估','我的应用代码逻辑正确'], a:3,
+     exp:'前三项都是"厂商/机构侧"的结论，而"我的应用逻辑正确"是应用开发者必须自己设计并验证的——库不能替你证明应用逻辑正确。', src:'E-CH01-MIS'}
+  ],
+  summary:['IEC 60730 管"自动电气控制器"，整机由 60335 管，Annex H 是软件要求核心','核心闭环：故障检测 → 故障响应（进入安全状态）','库/芯片/报告/应用/整机是五个层级的结论，不可互相替代','你手头的正式文本是 IEC 60730-1:2022（扫描版）；VDE 检测报告基于 60730-1:2013+AMD 系列'],
+  next:'下一章：IEC 60730 标准结构 —— Part 1 / Part 2 / Annex H 各管什么。'
+},
+
+ch02: {
+  id:'ch02', no:'02', stage:1, title:'IEC 60730 标准结构',
+  lead:{
+    goal:'理解 Part 1 / Part 2 / Annex H 的分工，能在标准树里找到自己该读的部分。',
+    why:'后面所有章节引用的条款（如 H.11.12.1）都挂在这棵标准树上，找不到树就找不到据。',
+    pre:'第 01 章。',
+    rel:'为第 04 章 Class 分级和第 13 章需求追踪提供"条款坐标系"。'
+  },
+  concepts:[
+    {t:'Part 1：通用要求', tag:'S', src:'S-PART1',
+     def:'IEC 60730-1 是全系列的通用基础，包含通用要求、试验通用程序，以及附录 H 等特殊附录。',
+     body:`<p>Part 1 规定所有自动电气控制器共同满足的要求：定义、分类、标记、防触电、结构、电气强度……其中对嵌入式软件工程师最重要的是 <b>Annex H</b>（使用软件的电子控制系统的要求）。</p>
+     <p>你本地持有的文本：<b>IEC 60730-1:2022（Ed 5.0，610 页，扫描版）</b>。课程引用条款号时均指 2022 版；因 PDF 为扫描图像、无机读文本，页码级引用标注"以 PDF 页码为准"。<span class="tag tag-T" data-src="T-SCAN">待核实</span></p>`},
+    {t:'Part 2 系列：产品专项要求', tag:'S', src:'S-PART2',
+     def:'Part 2-x 针对具体类型的控制装置给出特殊要求，与 Part 1 配合使用。',
+     body:`<p>洗衣机控制器可能涉及的 Part 2 方向（<span class="tag tag-T" data-src="T-PART2">待核实：具体适用以标准文本与认证机构意见为准</span>）：</p>
+     <ul><li><b>IEC 60730-2-6</b>：压力/水位传感控制（洗衣机的进水水位）</li>
+     <li><b>IEC 60730-2-7</b>：定时器与时序开关</li>
+     <li><b>IEC 60730-2-9</b>：温度传感控制（水温）——家电行业应用最广</li>
+     <li><b>IEC 60730-2-12</b>：门锁（洗衣机安全联锁）</li></ul>
+     <p>课程主线（Class B 自检机制）在 Part 1 Annex H 层面展开；Part 2 只需知道"存在且有引用关系"，具体条款在整机认证阶段再深入。</p>`},
+    {t:'Annex H 的内部结构', tag:'R', src:'R-AN-TABLE1',
+     def:'Annex H 规定软件分级（H.2 Class A/B/C）与各软件类别的具体要求，其中表 H.11.12.1 列出 Class B 要求的测试项目——正是自检库实现的那十项。',
+     body:`<p>对本课程最关键的三块：</p>
+     <ul><li><b>H.2 术语与分级</b>：Class A/B/C 的正式定义（第 4 章展开）</li>
+     <li><b>H.11 通用要求</b>：软件设计、自检、诊断覆盖的一般条款</li>
+     <li><b>表 H.11.12.1</b>：Class B 软件要求测试的组件/项清单——CPU、ROM、RAM、时钟、看门狗、电压、ADC、温度、输出（POE）、GPIO——瑞萨自检库的十项与之一一对应<span class="tag tag-R" data-src="R-AN-TABLE1">R｜应用笔记 Table 1</span></li></ul>
+     <p><span class="tag tag-T" data-src="T-HCL">待核实</span> H.11.12.1 的确切条款文字需在 2022 版扫描件中人工核对（本课程基于库实现反推的对应关系，属 R 类证据）。</p>`},
+    {t:'版本管理与"现行版"陷阱', tag:'E', src:'E-CH02-VER',
+     def:'认证依据的版本 ≠ 最新版本 ≠ 你在用的版本。三个版本要分开管理。',
+     body:`<p>本项目的真实版本矩阵（全部已核实）：</p>
+     <table><tr><th>文档</th><th>版本</th><th>日期</th></tr>
+     <tr><td>IEC 60730-1 正式文本</td><td>2022 版（Ed 5.0）</td><td>2022</td></tr>
+     <tr><td>VDE 检测报告依据</td><td>EN 60730-1:2016+A1:2019 / IEC 60730-1:2013+AMD1:2015+AMD2:2020</td><td>2022-06-22 出具</td></tr>
+     <tr><td>瑞萨自检库应用笔记</td><td>R01AN5540EJ0101 Rev.1.01</td><td>2024-05-31</td></tr>
+     <tr><td>RA2E1 数据手册</td><td>R01DS0386EJ0170 Rev.1.70</td><td>2025-10-31</td></tr></table>
+     <p>结论：库认证所依据的标准版本（2013+AMD，等效采用 2016 欧标）<b>落后于</b>你手头的 2022 版。做新产品认证时，机构会按现行有效版本要求你，可能产生差距分析——这就是"版本管理是安全工程的日常"。</p>`}
+  ],
+  figs:['fig-stdtree'],
+  figcaps:{'fig-stdtree':'图 2-1 · IEC 60730 标准树：Part 1 通用 + Part 2 专项 + Annex H 软件要求'},
+  sim:null,
+  quiz:[
+    {q:'洗衣机电子控制器在标准树中"最可能"同时涉及哪些 Part 2？', opts:['2-6 水位、2-9 温度、2-12 门锁','只有 2-9','只有整机标准 60335-2-7','Part 2 与控制器无关'], a:0,
+     exp:'洗衣机的进水水位（2-6 压力/水位传感）、水温（2-9 温度传感）、安全联锁（2-12 门锁）都是典型的自动电气控制。但具体适用清单必须以标准文本核实——本题选项基于常识映射，正式判定需查原文并咨询认证机构。', src:'T-PART2'},
+    {q:'VDE 检测报告评估瑞萨自检库所依据的 IEC 60730-1 版本是？', opts:['2022 版','2016+A1:2019（欧标）/ IEC 2013+AMD1+AMD2','2000 版','2010 版'], a:1,
+     exp:'证书列明：EN 60730-1:2016+A1:2019 与 IEC 60730-1:2013+AMD1:2015+AMD2:2020。而 2000 版是应用笔记 Note 1 引用的旧版本链，2022 版是你手里的最新文本。三个版本三种用途，不可混淆。', src:'R-VDE-STDS'},
+    {q:'判断题：表 H.11.12.1 的测试项与瑞萨自检库的十项一一对应，所以库实现 = 条款原文。', opts:['正确','错误'], a:1,
+     exp:'库的十项确实是按 H.11.12.1 设计的（应用笔记明示对应关系），但"库实现了这些测试"与"条款原文如此规定"是两种证据：前者是 R 类（厂商实现），后者是 S 类（标准要求）。本课程因标准为扫描版，S 类对应关系还需人工核对原文。', src:'R-AN-TABLE1'}
+  ],
+  summary:['Part 1 通用 + Part 2 专项 + Annex H 软件要求','表 H.11.12.1 = Class B 测试项清单 = 自检库十项的源头','版本矩阵：2022 文本 / 2013+AMD 认证依据 / 2000 转述链——分开放、别混淆'],
+  next:'下一章：安全概念与基本术语 —— 故障、失效、诊断、安全状态。'
+},
+
+ch03: {
+  id:'ch03', no:'03', stage:1, title:'安全概念与基本术语',
+  lead:{
+    goal:'掌握故障、失效、诊断、安全状态等术语的精确含义，能画出完整的故障响应链。',
+    why:'第 5 章以后的全部机制设计，都建立在"故障检测 → 故障响应"这条链上；术语不精确，设计就会漏。',
+    pre:'第 01-02 章。',
+    rel:'故障链是第 05 章（调度）与第 14 章（系统设计）的主轴。'
+  },
+  concepts:[
+    {t:'危险、风险、故障、失效', tag:'E', src:'E-CH03-DEF',
+     def:'危险=潜在伤害源；风险=伤害概率×严重度；故障（fault）=可能导出失效的错误状态；失效（failure）=功能丧失或偏离。',
+     body:`<p>区分 <b>fault</b> 与 <b>failure</b> 是安全工程的第一课：</p>
+     <ul><li><b>故障（fault）</b>：系统内部的异常状态——RAM 某位翻转、时钟偏快 5%、寄存器卡位。它<b>可能</b>导致失效，也可能被诊断机制捕获。</li>
+     <li><b>失效（failure）</b>：功能层面丧失或偏离——加热器该停没停、电机该转没转。</li></ul>
+     <p>诊断机制（Diagnostic / Self-Test）的作用就是在故障演变成失效之前<b>拦截</b>它。检测不到的故障叫潜伏故障（latent fault），安全设计要尽量压缩潜伏故障的存在时间。</p>`},
+    {t:'诊断机制与自检', tag:'R', src:'R-AN-TESTS',
+     def:'自检（Self-Test）= 系统对自身硬件的主动检查；诊断机制（Diagnostic）= 更广义的检测手段（含硬件在线监测）。',
+     body:`<p>瑞萨自检库中，两类手段并存（都已从源码核实）：</p>
+     <ul><li><b>主动自检</b>：CPU 寄存器写读、RAM March、ROM CRC——需要专门 CPU 时间跑测试</li>
+     <li><b>在线监测</b>：CAC 持续测频、LVD 持续监视电压、POEG 持续监听故障事件——配置一次，硬件自动工作</li></ul>
+     <p>两者的调度策略不同（第 05 章），覆盖的故障类型也不同——所以 Class B 要求的是<b>一组</b>机制，不是单一银弹。</p>`},
+    {t:'安全状态与故障响应', tag:'R', src:'R-AN-ERRLOOP',
+     def:'安全状态=系统不会造成危害的状态。故障响应=检测到故障后进入安全状态的动作，标准将其定义为应用职责。',
+     body:`<p>瑞萨库的代码把这个职责划分展示得非常清楚（已核实）：</p>
+     <p>库内部所有测试失败都汇聚到 <code>Error_Detected_Loop(errno)</code>——它只是<b>报告</b>故障；而"进入什么样的安全状态"（关断加热器、锁死输出、复位重启…）由应用层决定。库源码注释原文："A user must set up a timeout period and window suitable for his project."</p>
+     <p>为什么标准不替你定义安全状态？因为洗衣机和灶具的安全状态完全不同——只有懂产品的人才能定义。<b>这正是认证审核时被问得最多的地方。</b></p>`},
+    {t:'控制器故障链路（本课程主图）', tag:'E', src:'E-CH03-CHAIN',
+     def:'故障源 → 诊断机制 → 故障判定 → 故障响应 → 安全状态，任何一环缺失 = 整链无效。',
+     body:`<p>把这张图记住，后面每一章都是在填这张图的一个环节：</p>
+     <ul><li>故障源（第 6-9 章：CPU/RAM/Flash/时钟/看门狗/ADC/GPIO/电压/温度/输出）</li>
+     <li>诊断机制（第 5 章：上电测试 + 周期测试 + 在线监测）</li>
+     <li>故障判定（第 12 章：Error_Detected_Loop 汇聚）</li>
+     <li>故障响应（第 14 章：应用定义的安全状态）</li>
+     <li>验证证据（第 13 章：测试记录与追踪）</li></ul>`}
+  ],
+  figs:['fig-faultchain','fig-closure'],
+  figcaps:{'fig-faultchain':'图 3-1 · 控制器故障链路：任一环节缺失则整链无效'},
+  sim:'simFaultChain',
+  quiz:[
+    {q:'RAM 某存储位卡死在 1，但程序尚未读到该单元。这是故障还是失效？', opts:['失效','故障','既是故障也是失效','都不是'], a:1,
+     exp:'异常状态已存在（故障），但功能尚未偏离（未失效）。诊断机制的目标正是在故障→失效之间拦截。这也解释了为什么 RAM 周期测试要在数据被使用前覆盖到它。', src:'E-CH03-DEF'},
+    {q:'瑞萨自检库检测到 ROM CRC 不一致后，直接执行的动作是？', opts:['调用应用定义的安全状态函数','进入 Error_Detected_Loop 报告故障','自动复位 MCU','擦除 Flash 重写'], a:1,
+     exp:'库内 ROM_Test_Failure → Error_Detected_Loop(errno)，只负责"报告+锁定"。"做什么安全动作"由应用定义——库注释明确要求用户自行设置合适的超时与窗口。', src:'R-AN-ERRLOOP'},
+    {q:'以下哪个属于"在线监测"而不是"主动自检"？', opts:['RAM March 算法','CPU 寄存器 0x55/0xAA 写读','CAC 时钟频率交叉监测','ROM 全片 CRC 计算'], a:2,
+     exp:'CAC 配置一次后由硬件持续测频，不占用 CPU 执行测试；其余三项都需要专门 CPU 时间执行。两类机制在库中并存且调度方式不同。', src:'R-AN-TESTS'},
+    {q:'判断题：只要十项自检全部 PASS，控制器就是安全的。', opts:['正确','错误'], a:1,
+     exp:'自检覆盖的是 MCU 硬件层。传感器漂移、执行器卡死、应用逻辑缺陷、多故障叠加都不在十项覆盖内——诊断覆盖有边界（第 9 章展开），系统安全还需要安全状态设计与验证。', src:'E-CH03-CHAIN'}
+  ],
+  summary:['fault（故障，内部异常）≠ failure（失效，功能偏离）；诊断在两者之间拦截','自检（主动，花 CPU 时间）与在线监测（被动，硬件自动）两类机制并存','安全状态由应用定义——认证审核重点','故障链五环节：源 → 诊断 → 判定 → 响应 → 证据'],
+  next:'下一章：Class A / B / C —— 用分类判断器实测你的理解。'
+},
+
+ch04: {
+  id:'ch04', no:'04', stage:1, title:'Class A / B / C 软件分级',
+  lead:{
+    goal:'掌握 Annex H 的软件三级分类，能对任意家电控制功能做正确分级。',
+    why:'分级决定要求强度：你产品的每个控制功能都要归级，Class B 要求的自检表就是你的自检库的任务书。',
+    pre:'第 01-03 章。',
+    rel:'Class B 是第 5-12 章全部内容的适用范围。'
+  },
+  concepts:[
+    {t:'三级的定义（按应用笔记转述）', tag:'R', src:'R-AN-CLASS',
+     def:'Class A：不依赖其保证设备安全；Class B：用于防止设备不安全运行；Class C：用于防止特殊危险。',
+     body:`<p>应用笔记第 1 页给出（瑞萨转述，正式定义以 IEC 60730-1:2022 Annex H 为准 <span class="tag tag-T" data-src="T-HCL">待核实</span>）：</p>
+     <table><tr><th>级别</th><th>定义</th><th>典型例子</th><th>要求强度</th></tr>
+     <tr><td><b>Class A</b></td><td>控制功能不打算依赖其来保证设备安全</td><td>室温调节、湿度控制、照明控制、定时器、开关</td><td>最低（不要求本课程的自检表）</td></tr>
+     <tr><td><b>Class B</b></td><td>控制功能用于防止设备不安全运行</td><td>热断路器、洗衣机门锁</td><td>★ 本课程主线：十项自检 + 故障响应</td></tr>
+     <tr><td><b>Class C</b></td><td>控制功能用于防止特殊危险</td><td>自动燃烧器控制</td><td>最严（附加要求）</td></tr></table>
+     <p>应用笔记原文点名的典型场景：洗衣机、洗碗机、干衣机、冰箱、灶具<b>趋于落入 Class B</b>。</p>`},
+    {t:'洗衣机控制器的分级实操', tag:'E', src:'E-CH04-WM',
+     def:'同一台洗衣机，不同控制功能可能落在不同 Class——分级对象是"功能"不是"整机"。',
+     body:`<p>以洗衣机为例做分级演练（E 类教学判断，正式定级需认证机构确认）：</p>
+     <ul><li>洗涤节奏（正反转交替）：<b>Class A</b>——节奏乱了衣服洗不干净，但不会不安全</li>
+     <li>加热管温度控制：超温有火灾风险 → <b>Class B</b></li>
+     <li>门锁联锁（运行中不允许开门）：夹伤风险 → <b>Class B</b></li>
+     <li>进水水位防止溢水：<b>Class B</b>（水淹风险）</li>
+     <li>显示"剩余时间"：<b>Class A</b></li></ul>
+     <p>要点：<b>Class B 的存在决定了整个控制器软件需要满足 Annex H 的 Class B 要求</b>，十项自检因此成为必选。</p>`},
+    {t:'为什么"仅凭自检库"判断不了产品合规', tag:'R', src:'R-VDE-SCOPE',
+     def:'库覆盖 MCU 硬件层；产品合规 = 分级正确 + 诊断策略完整 + 安全状态定义 + 验证证据 + 整机认证，链条缺一不可。',
+     body:`<p>用本项目资料直接证明（全部已核实）：</p>
+     <ul><li>VDE 检测报告的对象是"<b>自诊断例程</b>"（Self-Diagnostic Routines）——测的是库代码本身，不是你的产品</li>
+     <li>报告明确声明："该报告不授权使用 VDE 认证标志，仅考虑下述规范的要求"——连 VDE 自己都划清了边界</li>
+     <li>报告还注明：标 * 的例程（FPU 系列）<b>不适用于</b> RA2 (Cortex-M23)——连"库内的哪些函数对你的芯片有效"都需要核对</li></ul>
+     <p>所以正确的心智模型：<b>库 = 经过验证的积木；产品合规 = 你用积木搭的房子通过验收。</b></p>`}
+  ],
+  figs:['fig-classabc'],
+  figcaps:{'fig-classabc':'图 4-1 · Class A/B/C 要求强度递进，Class B 为家电主流'},
+  sim:'simClassABC',
+  quiz:[
+    {q:'洗衣机"剩余时间显示"功能属于？', opts:['Class A','Class B','Class C','不需要分级'], a:0,
+     exp:'显示错了不影响设备安全（不依赖它保证安全运行），属 Class A。分级对象是"控制功能"，一台设备内不同功能可以不同级。', src:'E-CH04-WM'},
+    {q:'洗衣机门锁联锁功能失效会导致运行中开门（夹伤风险），应归入？', opts:['Class A','Class B','Class C','视品牌而定'], a:1,
+     exp:'门锁用于防止设备不安全运行（夹伤），典型 Class B。应用笔记把"洗衣机门锁"列为 Class B 的标准例子。', src:'R-AN-CLASS'},
+    {q:'VDE 检测报告中标 * 的例程（FPU 系列）对 RA2E1（Cortex-M23）的状态是？', opts:['必须额外购买','不适用（M23 无 FPU）','仅调试模式可用','需要手动使能'], a:1,
+     exp:'证书 Remark 原文："Routine marked with * are not applicable for RA2 with Arm Cortex-M23 family."——M23 核心没有 FPU，FPU 测试无对象。这也解释了库源码中 FPU 代码被宏自动排除的设计。', src:'R-VDE-ROUTINES'},
+    {q:'判断题：只要全部控制功能都跑着 VDE 评估过的自检库，整机就满足 IEC 60730 Class B。', opts:['正确','错误'], a:1,
+     exp:'证书对象是库代码本身，且明示不授权认证标志。整机合规还需要：正确的功能分级、完整的诊断策略（含库外部分）、应用定义的安全状态、验证证据、以及整机层面的认证评估。', src:'R-VDE-SCOPE'}
+  ],
+  summary:['Class A/B/C 分级对象是"控制功能"；洗衣机整体趋于 Class B，但内部功能可分级不同','Class B 触发 Annex H 十项自检要求 = 自检库的任务书','自检库是验证过的积木，不是免检通行证'],
+  next:'下一章：软件架构与诊断策略 —— 进入原理阶段，看库的真实调度代码。'
+}
+});
+
+</script>
+<script>
+/* 课程数据 · 阶段二：软件安全与自检原理（第05-09章） */
+window.CHP = window.CHP || {};
+Object.assign(window.CHP, {
+
+ch05: {
+  id:'ch05', no:'05', stage:2, title:'软件架构与诊断策略',
+  lead:{
+    goal:'理解诊断机制如何嵌入固件：上电全量测试 + 运行中周期测试 + 在线监测三层调度。',
+    why:'测试写出来只是第一步，什么时候跑、跑多久、失败了怎么办——调度策略决定实时性与安全性的平衡。',
+    pre:'第 03-04 章。',
+    rel:'本章是第 6~9 章（各项测试）的调度总纲，第 12 章做工程级展开。'
+  },
+  concepts:[
+    {t:'三层诊断架构（库的真实分层）', tag:'R', src:'R-AN-ARCH',
+     def:'上电测试（全量、破坏性）→ 监测初始化 → 运行中周期测试（分块轮转）+ 在线监测（硬件自动）。',
+     body:`<p>全部来自 SelfTestLib 源码实测：</p>
+     <ul><li><b>第一层 · 上电测试</b>：<code>test_main() → Tests_PowerOn()</code>，CPU 全寄存器、RAM 全量 March（此时数据还未使用，可以破坏性测试）、整片 ROM CRC、ADC 诊断——一步失败即停</li>
+     <li><b>第二层 · 监测初始化</b>：ClockMonitor（CAC）、VoltageMonitor（LVD）、Temperature、POE——配置后由硬件持续工作</li>
+     <li><b>第三层 · 周期测试</b>：AGT 定时器 80ms 中断 → <code>PeriodicTestCallBack()</code> 状态机轮转：CPU→RAM块→栈→CRC→ADC→温度，每 80ms 只做一小块</li></ul>
+     <p>为什么这样分？<b>上电时可以放心破坏（数据还没用）；运行中必须小心（数据在用），只能分块+备份。</b></p>`},
+    {t:'入口与调用链', tag:'R', src:'R-AN-MAIN',
+     def:'应用入口只有 2 行有效代码：hal_entry() 调 test_main()，之后永不返回（内含主循环）。',
+     body:`<p>RA2L1 示例工程的 <code>src/hal_entry.c</code>（42 行，已实测）核心就一句：</p>
+     <p><code>void hal_entry(void) { test_main(); }</code></p>
+     <p>test_main() 内部结构（RA_SelfTests.c，已实测）：ConfigurePins → ConfigureClock → 注册 NMI 组中断回调 → Tests_PowerOn() 上电五步 → 监测初始化 → 启动 AGT 80ms 节拍 → <b>无限主循环</b>（读电位器/温度 ADC，模拟你的应用任务）。</p>
+     <p>你的产品接入方式：把主循环里的演示任务换成你的应用逻辑，自检调度框架不动。<span class="tag tag-T" data-src="T-PORT">待核实：RA2E1 移植后的具体适配</span></p>`},
+    {t:'诊断时间与实时性预算', tag:'E', src:'E-CH05-TIME',
+     def:'周期测试占用的 CPU 时间必须可预算：80ms 节拍 × 单块测试时长，挤占的是应用任务的执行窗口。',
+     body:`<p>设计账本（教学估算）：</p>
+     <ul><li>单次周期测试块（如 RAM 一块 March）：几十~几百 μs 级</li>
+     <li>80ms 间隔 → 测试占用率约 0.1~1%——对一般家电控制足够小</li>
+     <li>但<b>上电测试不可被打断</b>：CPU 全寄存器测试要求关中断（测试期间要占用全部 GPR），上电启动时间因此变长</li></ul>
+     <p>这就是"共享资源与执行时机"问题：测试用 CPU、用 RAM 测试区、用 ADC——都要和应用任务错开。库的解法：RAM 周期测试先备份后恢复、ADC 周期测试与主循环共用 ADC 但分时。</p>`},
+    {t:'看门狗必须在测试全部初始化完成后才启动', tag:'R', src:'R-AN-IWDT-ORDER',
+     def:'Tests_PowerOn 的顺序设计：IWDT_Init 放在最后一步——因为上电测试总耗时可能超过喂狗周期。',
+     body:`<p>Tests_PowerOn() 源码顺序（已实测）：CPU 测试 → RAM 测试 → CRC → ADC → <b>IWDT_Init()</b>。</p>
+     <p>如果 IWDT 先启动：上电测试跑着跑着 IWDT 超时 NMI/复位——上电测试自身被看门狗杀掉。顺序错了，整套机制自毁。<b>细节在代码里，不在文档里——这就是要读源码的原因。</b></p>`}
+  ],
+  figs:['fig-schedule'],
+  figcaps:{'fig-schedule':'图 5-1 · 三层诊断调度：上电全量 → 监测初始化 → 80ms 周期轮转'},
+  sim:'simScheduler',
+  code:[
+    {title:'入口与上电五步（真实骨架，加中文注）', src:'SelfTestLib/src/RA_SelfTests.c（实测节选）', code:
+`bool_t Tests_PowerOn(void)
+{
+    ConfigurePins();      /* 先配引脚：出错时 LED 能点亮 */
+    CPU_Test_All();       /* 1. CPU 全寄存器（内部关中断） */
+    result = Tests_PowerOn_RAM();  /* 2. RAM 破坏性全量 March */
+    /* 3. ROM CRC：设定范围 → 硬件 CRC → 与 ROM 尾部期望值比对 */
+    CRC_Init();  CRC_Start();
+    for (index = 0; index < CRC_RANGE_NUM; index++)
+        CRC_AddRange((uint32_t*)CRC_Ranges[index].Start, ...);
+    CRC_value = CRC_Result();
+    result = CRC_Verify(~CRC_value, CRC_ADDRESS);
+    /* 4. ADC 诊断 */
+    Test_ADC_Init();
+    result = Test_ADC_Wait();
+    /* 5. IWDT 最后初始化：防止上电测试耗时超喂狗周期被误杀 */
+    IWDT_Init();
+    return result;
+}`}
+  ],
+  quiz:[
+    {q:'为什么 RAM 上电测试可以"破坏性"，运行中测试必须"备份恢复"？', opts:['上电时 CPU 快','上电时数据尚未被应用使用','编译器要求','RAM 尚未上电'], a:1,
+     exp:'上电测试发生在应用数据初始化之前，RAM 内容可随意覆写；运行中 RAM 存着活数据，所以库的周期 RAM 测试先备份块数据，March 后恢复。', src:'R-AN-ARCH'},
+    {q:'PeriodicTestCallBack 每 80ms 只执行"一小块"测试的原因是？', opts:['省电','保护 Flash 寿命','保证应用任务的实时性','标准强制规定'], a:2,
+     exp:'把全量测试切碎分摊到多个 80ms 节拍里，单次占用 CPU 极小（约 0.1~1%），应用任务的实时窗口不被挤占——这是"诊断时间 vs 系统响应时间"的平衡设计。', src:'E-CH05-TIME'},
+    {q:'Tests_PowerOn 中 IWDT_Init 放在最后一步的原因是？', opts:['IWDT 寄存器上电晚','防止上电测试期间 IWDT 超时误复位','IWDT 依赖 ADC 结果','标准要求'], a:1,
+     exp:'上电五步总耗时可能超过 IWDT 喂狗窗口；先启动 IWDT 会把上电测试自己"咬死"。顺序设计本身就是安全思维。', src:'R-AN-IWDT-ORDER'},
+    {q:'判断题：test_main() 执行完上电测试后返回，应用代码从 main() 继续。', opts:['正确','错误'], a:1,
+     exp:'test_main() 内部包含无限主循环（演示代码为读 ADC），永不返回。你的应用逻辑应嫁接进该循环，而不是等它返回。', src:'R-AN-MAIN'}
+  ],
+  summary:['三层：上电全量（可破坏）→ 监测初始化 → 80ms 周期轮转（分块+备份）','调用链：hal_entry → test_main → Tests_PowerOn → 监测 → 主循环','IWDT 最后初始化——顺序即安全','诊断 CPU 占用率 ≈ 0.1~1%，实时性预算要记账'],
+  next:'下一章：CPU 与程序流诊断 —— 0x55/0xAA 背后的门道。'
+},
+
+ch06: {
+  id:'ch06', no:'06', stage:2, title:'CPU 与程序流诊断',
+  lead:{
+    goal:'掌握 CPU 寄存器测试的原理与实现边界：为什么必须用汇编、为什么 0x55 和 0xAA 都要写。',
+    why:'CPU 是一切计算的根基，它坏了什么诊断都不可信——所以它被安排在上电测试第一步、周期测试轮转首位。',
+    pre:'第 05 章调度框架。',
+    rel:'H.11.12.1 第一项；周期测试轮转的起点。'
+  },
+  concepts:[
+    {t:'测什么：寄存器清单', tag:'R', src:'R-AN-CPU-LIST',
+     def:'通用寄存器 R0-R12、程序计数器 PC、控制寄存器（MSP/PSP/LR/PSR/PRIMASK/CONTROL）；M4 核心另有 FPU 寄存器 S0-S31（M23 无）。',
+     body:`<p>应用笔记 1.1 节的寄存器清单（已核实）：</p>
+     <table><tr><th>类别</th><th>M4（RA4/6）</th><th>M23（RA2E1）</th></tr>
+     <tr><td>通用寄存器</td><td>R0-R12</td><td>R0-R12</td></tr>
+     <tr><td>控制寄存器</td><td>MSP/PSP/LR/PSR/PRIMASK/CONTROL/FAULTMASK/BASEPRI</td><td>MSP/PSP/LR/PSR/PRIMASK/CONTROL</td></tr>
+     <tr><td>PC</td><td>✓</td><td>✓</td></tr>
+     <tr><td>FPU S0-S31 + 控制寄存器</td><td>✓</td><td>不适用（无 FPU）</td></tr></table>
+     <p><span class="tag tag-R" data-src="R-VDE-ROUTINES">R｜VDE 报告</span> 证书中 FPU 例程全部标 *：对 RA2 (M23) 不适用——与硬件事实一致。</p>`},
+    {t:'怎么测：走-跳（Walking Pattern）与耦合测试', tag:'R', src:'R-AN-CPU-55AA',
+     def:'向寄存器写 0x55555555 读回比对、再写 0xAAAAAAAA 比对——两图样互补，能暴露"卡位"（ stuck-at）故障；耦合测试验证相邻寄存器是否互相干扰。',
+     body:`<p>为什么是 0x55/0xAA？二进制 0101… / 1010… 逐位互补：</p>
+     <ul><li>若某位卡 0：写 0xAA 读回变 0xAA→0x2A 类错误，可检出</li>
+     <li>若某位卡 1：写 0x55 读回变 0xD5 类错误，可检出</li></ul>
+     <p><b>耦合故障</b>（写 R3 时 R4 跟着变）单寄存器测试测不出——库提供 GPR 耦合测试族（TestGPRsCoupling*，14 个 .asm）：一组函数把数据散布到相邻寄存器再交叉验证。</p>
+     <p><b>PC 测试特殊</b>：PC 不能直接写读（写了就跳飞），库用受控跳转验证取指正确性。</p>
+     <p><b>控制寄存器特殊</b>：某些位有硬件约束（如 PSR 的 EPSR 位不可写），测试需按位掩码特判——源码注释明示"some cases restrictions on certain bits"。</p>`},
+    {t:'为什么核心部分必须汇编', tag:'R', src:'R-AN-CPU-ASM',
+     def:'C 编译器会自由使用 R0-R12 存放临时变量——用 C 写"测全部寄存器"必然自相矛盾；只有手写汇编才能精确控制每个寄存器的用途。',
+     body:`<p>这是 CPU 测试最大的实现边界。库的做法：</p>
+     <ul><li>汇编函数实现测试主体：<code>CPU_Test_Control.asm</code>（控制寄存器）、<code>CPU_Test_General_High/Low.asm</code>（GPR 高/低组）</li>
+     <li>C 代码只做调用与结果处理：<code>cpu_test.c → CPU_Test_All()</code></li>
+     <li>调用约定：C 侧只依赖 R1-R4 可用（源码注释："This test assumes registers R1 to R4 are working"——先用少量寄存器做前置验证，再全面铺开）</li></ul>
+     <p><b>中断必须关闭</b>（源码注释大写警告："AN INTERRUPT MUST NOT OCCUR DURING THIS FUNCTION"）——中断会改写 PSR/寄存器，测试结果全废。</p>`},
+    {t:'程序流检查（Program Flow）', tag:'E', src:'E-CH06-FLOW',
+     def:'验证程序按预期路径执行：常用手段是时间基准检查、关键节点标志位、调用链校验。',
+     body:`<p>寄存器测试证明"计算单元健康"，但程序跑飞（PC 跳错）是另一类故障。常用手段：</p>
+     <ul><li><b>时间监控</b>：关键循环周期超限即报警（与看门狗配合，第 8 章）</li>
+     <li><b>程序流标志</b>：按预定义序列点亮标志位，乱序即检出（库周期测试的 ProgramFlow_Failure 即此类思想）</li>
+     <li><b>冗余计算</b>：关键量算两遍比对</li></ul>
+     <p>教学边界：库的 ProgramFlow 机制在源码中部分被注释（如 RAM_BUFFER_DTC 分支的流程检查），属可选增强——Class B 要求"程序流检查"的方式灵活，不是只有一种实现 <span class="tag tag-T" data-src="T-HCL">待核实条款原文</span>。</p>`}
+  ],
+  figs:['fig-walking'],
+  figcaps:{'fig-walking':'图 6-1 · 0x55/0xAA 互补图样逐位暴露卡位故障'},
+  sim:'simCPU',
+  code:[
+    {title:'CPU_Test_All 的 C 侧组织（真实结构）', src:'SelfTestLib/src/Tests/CPU_test/cpu_test.c（结构节选）', code:
+`/* C 侧：只做编排，不碰被测寄存器本体 */
+uint32_t CPU_Test_All(void)
+{
+    /* 前置假设：R1-R4 可用（调用约定保证） */
+    /* 1. 控制寄存器测试（汇编主体） */
+    if (TestControlRegisters() == FAIL)  CPU_Test_ErrorHandler(...);
+    /* 2. 通用寄存器：普通版 + 耦合版（二选一或都做） */
+    CPU_Test_General_Low();    /* R0-R6 组，汇编主体 */
+    CPU_Test_General_High();   /* R7-R12 组，汇编主体 */
+    /* 耦合测试族：TestGPRsCoupling*（14 个 .asm 函数） */
+    /* 3. PC 测试：受控跳转验证 */
+    /* M4 才有：FPU 寄存器测试（M23 宏排除） */
+}`}
+  ],
+  quiz:[
+    {q:'寄存器测试用 0x55 和 0xAA 两个图样的原因是？', opts:['凑够测试次数','0x55 写读不够，互补图样能分别暴露卡 0 和卡 1','历史惯例','提高测试速度'], a:1,
+     exp:'0x55=0101…、0xAA=1010…逐位互补。卡 0 故障会在写 0xAA 时暴露，卡 1 故障会在写 0x55 时暴露——单一图样总有漏检方向。', src:'R-AN-CPU-55AA'},
+    {q:'CPU 寄存器测试期间为什么必须关中断？', opts:['防止看门狗喂狗','中断会使用并改写通用寄存器和 PSR，破坏测试图样','提高测试速度','标准硬性规定'], a:1,
+     exp:'源码警告原文"AN INTERRUPT MUST NOT OCCUR DURING THIS FUNCTION"：中断上下文要保存/恢复寄存器，会篡改测试写入的图样，且 PSR 被改后读回比对必错。', src:'R-AN-CPU-ASM'},
+    {q:'RA2E1（Cortex-M23）上 FPU 寄存器测试的处理方式是？', opts:['照常执行','宏自动排除（硬件无 FPU）','编译报错','需手动配置'], a:1,
+     exp:'M23 无 FPU，库源码用条件编译排除 fpu_test_coupling.c 与全部 TestFPUCoupling*.asm；VDE 证书同样将 FPU 例程标 * 不适用于 RA2。', src:'R-VDE-ROUTINES'},
+    {q:'GPR"耦合测试"要查的故障是？', opts:['寄存器写读超时','写一个寄存器导致相邻寄存器跟着变化','寄存器堆掉电','PC 跳飞'], a:1,
+     exp:'耦合故障（coupling fault）指一个单元的写操作影响另一单元——单寄存器 0x55/0xAA 测不出，需要把图样散布到相邻寄存器交叉验证，这就是 TestGPRsCoupling* 族的设计目的。', src:'R-AN-CPU-55AA'}
+  ],
+  summary:['测 R0-R12/PC/控制寄存器；M23 无 FPU 自动排除','0x55/0xAA 互补图样 → 卡位故障；耦合测试族 → 相邻干扰','必须汇编实现 + 关中断——C 编译器会自由使用寄存器','PC 与控制寄存器需特殊手法（受控跳转/位掩码）'],
+  next:'下一章：RAM 与 Flash 诊断 —— March 算法动画演示。'
+},
+
+ch07: {
+  id:'ch07', no:'07', stage:2, title:'RAM 与 Flash 诊断',
+  lead:{
+    goal:'掌握 March 算法的步骤逻辑与 CRC 的工程链路（构建注入 → 运行比对）。',
+    why:'RAM 存活数据、Flash 存程序——两类存储的失效直接决定系统行为；这两项也是周期测试中耗时最长的。',
+    pre:'第 05 章。',
+    rel:'RAM 周期测试的备份/恢复机制在第 12 章工程展开。'
+  },
+  concepts:[
+    {t:'RAM 故障模型', tag:'E', src:'E-CH07-RAMF',
+     def:'卡位（stuck-at 0/1）、耦合（写 A 影响 B）、翻转（读/写扰动）——March 算法对这三类都有覆盖。',
+     body:`<p>为什么简单读写不够：写 0 读 0 通过，可能只是"恰好"——卡 0 单元写 0 读 0 永远"正常"。有效测试必须让每个单元<b>经历状态翻转</b>并在中间态读出。</p>
+     <p>March 算法正是"状态序列走查"：按固定顺序对每个单元执行 读-写 序列，任何卡位/耦合故障都会在序列中某个中间读点暴露。</p>`},
+    {t:'March-C 六步（库的真实实现）', tag:'R', src:'R-AN-MARCH',
+     def:'全写0 → 升序读0写1 → 升序读1写0 → 降序读0写1 → 降序读1写0 → 全读0。',
+     body:`<p>源码 <code>ramtest_march_c.c</code> 头注释原文（已核实）：</p>
+     <ul><li>STEP1：向数组全写 0</li>
+     <li>STEP2：从最低地址起，读 0、写 1，升序推进</li>
+     <li>STEP3：从最低地址起，读 1、写 0，升序推进</li>
+     <li>STEP4：从最高地址起，读 0、写 1，降序推进</li>
+     <li>STEP5：从最高地址起，读 1、写 0，降序推进</li>
+     <li>STEP6：全读 0</li></ul>
+     <p>升序+降序对称是为了捕捉<b>耦合方向</b>：高地址写入影响低地址、低影响高，两个方向都要走到。用下面模拟器亲手跑一遍，观察耦合故障在哪一步暴露。</p>`},
+    {t:'运行中 RAM 测试的备份/恢复', tag:'R', src:'R-AN-RAM-PER',
+     def:'周期测试一次只测一小块：先把该块数据拷到安全区，March 完恢复——测试对应用"透明"。',
+     body:`<p>库的周期 RAM 测试（PeriodicTest_RAM）逻辑：</p>
+     <ul><li>维护测试区游标，每次 80ms 节拍测一块</li>
+     <li>测前备份 → March → 恢复 → 游标推进</li>
+     <li>一块不通过（如 TRUE != PeriodicTest_RAM()）则停留重试/报错，不盲目前进</li></ul>
+     <p>测试区规划是<b>你的集成参数</b>：必须避开栈、堆、活跃全局变量——RA2E1 RAM 只有 16KB（datasheet Rev.1.70），规划要精打细算。</p>`},
+    {t:'Flash/ROM 完整性：CRC 工程链路', tag:'R', src:'R-AN-CRC',
+     def:'构建后处理用 srec_cat 对固件算 CRC 并写入镜像尾部；运行时硬件 CRC 外设重算，与 ROM 中的期望值比对。',
+     body:`<p>完整链路（全部已核实）：</p>
+     <ul><li><b>构建时</b>：srec_cat 把 ROM 填 0xFF → 裁剪出计算区（预留末 4 字节）→ 算 CRC 写入 → 输出新镜像</li>
+     <li><b>上电时</b>：Tests_PowerOn 里 CRC_AddRange 按 CRC_Ranges 表逐段累加 → CRC_Verify(~CRC_value, CRC_ADDRESS) 与期望值比对</li>
+     <li><b>运行中</b>：PeriodicTest_CRC 用 static index <b>分段累加</b>（每次节拍算一段，几轮算完全片）——不是每次全片重算</li></ul>
+     <p><b>期望值硬编码是大忌</b>：任何代码改动都会改变 CRC，必须走构建后处理自动注入。</p>`},
+    {t:'CRC 的能力边界', tag:'E', src:'E-CH07-CRCB',
+     def:'CRC 能发现绝大多数位翻转与突发错误，但不是全知：某些多位组合错误会漏检（概率极低但非零）。',
+     body:`<p>数学事实：CRC 是线性校验，存在错误图样使其余数恰好为 0（漏检）。工程对策：</p>
+     <ul><li>选多项式与宽度足够（32 位 CRC 漏检概率 ~2⁻³² 量级）</li>
+     <li>CRC 只是<b>完整诊断体系的一环</b>——配合 RAM March、程序流检查互为补充</li>
+     <li>不能宣称"CRC 通过 = Flash 完全无错"，认证文件里要如实写覆盖能力</li></ul>
+     <p>用下面的模拟器直观感受：翻转 1 位必检出；翻转特定多位组合可能侥幸漏过。</p>`}
+  ],
+  figs:['fig-march','fig-crcflow'],
+  figcaps:{'fig-march':'图 7-1 · March-C 六步：升序降序对称覆盖耦合方向'},
+  sim:'simMarch',
+  code:[
+    {title:'srec_cat CRC 注入命令（包内 512KB 模板，实测）', src:'srec/CRCcalcCmd512KB.txt', code:
+`# CRC calculate
+Original.srec
+-fill 0xFF 0x00000 0x080000   # 512KB ROM 填充 0xFF
+-crop 0x00000 0x07FFFC        # CRC 计算区（预留末 4 字节）
+-STM32-le  0x07FFFC           # 计算 CRC（小端）写入 0x07FFFC
+-crop 0x7FFFC 0x80000
+Original.srec
+-fill 0xFF 0x000000 0x07FFFC
+-Output addcrc.srec           # 输出含期望值的新镜像`},
+    {title:'上电 CRC 验证（真实代码节选）', src:'SelfTestLib/src/RA_SelfTests.c · Tests_PowerOn', code:
+`CRC_Init();  CRC_Start();
+for (index = 0; index < CRC_RANGE_NUM; index++)
+{
+    CRC_AddRange((uint32_t*)CRC_Ranges[index].Start,
+        (1 + ((uint32_t)CRC_Ranges[index].End -
+              (uint32_t)CRC_Ranges[index].Start)
+             + (sizeof(uint32_t)-1)) / sizeof(uint32_t));
+}
+CRC_value = CRC_Result();
+result = CRC_Verify(~CRC_value, CRC_ADDRESS); /* 取反比对 */`}
+  ],
+  quiz:[
+    {q:'March-C 中同时需要"升序"和"降序"两轮的原因是？', opts:['提高速度','覆盖耦合故障的两个方向','标准要求六步','节省内存'], a:1,
+     exp:'耦合故障有方向性（高→低或低→高），升序只暴露一个方向的耦合，降序覆盖另一个——对称走查才完整。', src:'R-AN-MARCH'},
+    {q:'运行中 RAM 周期测试"透明性"的关键机制是？', opts:['使用 DMA','测前备份块数据、测后恢复','只在空闲中断测','缩小测试区到 0'], a:1,
+     exp:'每次只测一小块且先备份后恢复，应用数据完好如初——这是分块轮转调度下 RAM 测试对应用透明的关键。', src:'R-AN-RAM-PER'},
+    {q:'修改了一行代码后，ROM CRC 期望值如何处理？', opts:['不用管','手动改源码里的期望值','构建后处理自动重算注入','发送给认证机构'], a:2,
+     exp:'代码任何变化都会改变镜像 CRC。期望值必须由 srec_cat 在构建后处理中自动计算注入——硬编码期望值是认证审核会抓的典型错误。', src:'R-AN-CRC'},
+    {q:'运行中 CRC 测试（PeriodicTest_CRC）的工作方式是？', opts:['每次 80ms 算全片','分段累加：每次节拍算一段，几轮完成全片','只算中断向量表','依赖外部工具'], a:1,
+     exp:'源码用 static int8_t index 分段：首次节拍 CRC_Start()，之后每次累加一段，轮转完再从头——兼顾实时性与覆盖完整性。', src:'R-AN-CRC'},
+    {q:'判断题：CRC 校验通过即可证明 Flash 内容 100% 无错。', opts:['正确','错误'], a:1,
+     exp:'CRC 存在理论漏检图样（多位组合恰好余 0），32 位 CRC 漏检概率极低但非零。工程上如实标注覆盖能力，并与 RAM/程序流检查互为补充。', src:'E-CH07-CRCB'}
+  ],
+  summary:['March-C 六步 = 全写0 + 升/降序对称走查，覆盖卡位与双向耦合','运行中 RAM 测试 = 分块 + 备份/恢复，测试区规划是你的集成参数','CRC 链路：srec_cat 构建注入 → 上电全片 → 运行分段累加','CRC 有理论漏检边界——如实标注，体系互补'],
+  next:'下一章：时钟、定时器与看门狗 —— 独立性的意义。'
+},
+
+ch08: {
+  id:'ch08', no:'08', stage:2, title:'时钟、定时器与看门狗',
+  lead:{
+    goal:'理解时钟交叉监测（CAC）的原理与"独立时钟源"的意义；掌握 IWDT 的双路径验证。',
+    why:'时钟是一切时序的基础：主时钟漂了，所有"毫秒"都不可信——包括看门狗的超时判定本身。',
+    pre:'第 05 章。',
+    rel:'库中 ClockMonitor_Init 与 IWDT_Init 的真实参数在此展开。'
+  },
+  concepts:[
+    {t:'时钟失效的后果谱系', tag:'E', src:'E-CH08-CLKF',
+     def:'主频漂移 → 定时失准（加热时间失控）；时钟停振 → 系统冻结；锁相失败 → 频率紊乱。看门狗能兜底"冻结"，但兜不住"漂移"。',
+     body:`<p>把时钟故障按"严重度×检出难度"排个序：</p>
+     <ul><li><b>停振</b>：最容易感知（一切停止），IWDT 兜底</li>
+     <li><b>漂移</b>：最难察觉——定时任务悄悄变慢/变快，温度控制窗口悄悄偏移。必须专门的频率监测</li>
+     <li><b>紊乱</b>：PLL 失锁等，介于两者之间</li></ul>
+     <p>所以 Class B 要求的时钟诊断不是"有没有时钟"，而是"<b>频率准不准</b>"。</p>`},
+    {t:'CAC 交叉测频：独立参考源是灵魂', tag:'R', src:'R-AN-CAC',
+     def:'CAC（时钟频率精度测量电路）用独立时钟测主频：库中用 HOCO 做被测、IWDTCLK(15kHz) 做参考，频率比超容差即回调 Clock_Test_Failure。',
+     body:`<p>真实调用（RA_SelfTests.c 实测）：</p>
+     <p><code>ClockMonitor_Init(HOCO, IWDTCLK, CLOCK_FREQ_MAIN, 15000, Clock_Test_Failure);</code></p>
+     <p>原理：参考时钟在精确窗口内开门计数，被测时钟数脉冲 → 实测频率比 → 与标称比+容差比较。为什么必须独立参考？<b>主时钟自己测自己，漂移了参考也一起漂，永远"正常"。</b>IWDTCLK 来自独立振荡器，与 HOCO 无共因失效。</p>
+     <p>库源码 ClockMonitor_Init 的关键步骤（实测）：PRCR 解锁(0xA502) → MSTPCRC 开模块时钟 → CACR1 选 HOCO 输入 → 配分频与容差 → 使能中断。注意寄存器保护解锁的固定序列 <code>PRCR = 0xA502</code>——RA 系列写保护机制，错序写入无效。</p>`},
+    {t:'IWDT 独立看门狗：双路径验证', tag:'R', src:'R-AN-IWDT',
+     def:'验证两件事：①正常喂狗时不复位；②故意不喂狗时确实复位。复位后查复位标志区分原因。',
+     body:`<p>"看门狗在跑"≠"看门狗有效"。库的验证思路（iwdt.c + RA_SelfTests.c 实测）：</p>
+     <ul><li><b>路径一（正向）</b>：IWDT_Init 后，从 now on IWDT_Kick must regularly be called——主循环按周期喂狗，系统正常运行</li>
+     <li><b>路径二（反向）</b>：故意不喂 → 超时 → NMI/复位 → <code>Check_ResetCause()</code> 检查 <code>IWDT_DidReset()</code>，确认 IWDT 复位被识别，调 Watchdog_Test_Failure</li></ul>
+     <p>源码注释要求："A user must set up a timeout period and window suitable for his project"——超时周期与窗口是<b>你的</b>集成参数，要覆盖"最慢的合法任务"又不能太宽。</p>
+     <p>独立性：IWDT 用独立时钟（LOCO），主时钟失效时它仍活着——与 CAC 的参考源思想一脉相承。</p>`},
+    {t:'看门狗不是万能兜底', tag:'E', src:'E-CH08-WDTL',
+     def:'IWDT 能检出"程序卡死/跑飞"，检不出"程序在跑但算错"——后者靠程序流检查与计算冗余。',
+     body:`<p>程序"活着但疯了"的场景：主循环全速运行、定时喂狗一丝不苟，但控制算法因 RAM 位翻转算出了错误的占空比。IWDT 全程绿灯，危险照样发生。</p>
+     <p>结论：看门狗 = <b>活性</b>（liveness）监控；诊断体系 = 活性 + <b>正确性</b>（integrity）双保险。十项自检各管一段，缺一不可。</p>`}
+  ],
+  figs:['fig-cac'],
+  figcaps:{'fig-cac':'图 8-1 · CAC 交叉测频：独立 IWDTCLK 做参考，主频漂移无所遁形'},
+  sim:'simClock',
+  code:[
+    {title:'ClockMonitor_Init 关键步骤（真实代码节选）', src:'SelfTestLib/src/Tests/CLOCK_test/clock_monitor.c', code:
+`void ClockMonitor_Init(clock_source_t target_clock, clock_source_t ref_clock,
+                       uint32_t target_clock_frequency,
+                       uint32_t ref_clock_frequency,
+                       CLOCK_MONITOR_ERROR_CALL_BACK CallBack)
+{
+    g_CallBackClock = CallBack;          /* 保存失败回调 */
+    PRCR_reg->PRCR = 0xA502;             /* 解除寄存器写保护 */
+    MSTPCRC_reg->MSTPCRC_b.MSTPC0 = 0;   /* 打开 CAC 模块时钟 */
+    PRCR_reg->PRCR = 0xA500;             /* 恢复写保护 */
+    switch (target_clock) {              /* 选择被测时钟 */
+    case (MAIN):      CACR1_reg->CACR1 = 0x00; break;
+    case (SUB_CLOCK): CACR1_reg->CACR1 = 0x02; break;
+    case (HOCO):      CACR1_reg->CACR1 = 0x04; break;
+    ...
+    }
+}`}
+  ],
+  quiz:[
+    {q:'CAC 时钟监测为什么必须用"独立"参考时钟？', opts:['省电','参考与被测无共因失效，主频漂移才能被真实反映','参考时钟更便宜','标准规定用 LOCO'], a:1,
+     exp:'若用主时钟自身或其衍生时钟做参考，主频漂移时参考同步漂移，比值永远正常。库选 IWDTCLK(15kHz) 独立振荡器，与 HOCO 无共因路径。', src:'R-AN-CAC'},
+    {q:'IWDT"双路径验证"的反向路径是？', opts:['快速连续喂狗','故意不喂狗，验证超时复位确实发生且可被识别','关闭中断喂狗','更换时钟源'], a:1,
+     exp:'正向路径证明"不该复位时没复位"，反向路径证明"该复位时真复位"且复位原因可被 Check_ResetCause/IWDT_DidReset 识别——缺一不可。', src:'R-AN-IWDT'},
+    {q:'RA 系列解除寄存器写保护（PRC1）的正确序列是？', opts:['PRCR=0xA502 → 操作 → PRCR=0xA500','PRCR=0xA500 → 操作','直接写寄存器','复位后自动解锁'], a:0,
+     exp:'ClockMonitor_Init 实测：先 PRCR=0xA502 解锁，操作 MSTPCRC，再 PRCR=0xA500 恢复保护。RA 系列关键寄存器均有此写保护机制，错序写入无效。', src:'R-AN-CAC'},
+    {q:'程序全速运行、定时喂狗正常，但控制算法因数据损坏算错占空比。哪种机制能拦住它？', opts:['IWDT','CAC 时钟监测','RAM March 周期测试 + 计算冗余','提高主频'], a:2,
+     exp:'IWDT 只监控活性（卡死/跑飞），不监控正确性。"活着但算错"要靠 RAM 数据完整性测试与计算冗余/程序流检查——这正是十项自检必须成体系的原因。', src:'E-CH08-WDTL'}
+  ],
+  summary:['时钟故障谱系：停振（IWDT 兜底）/ 漂移（CAC 专管）/ 紊乱','CAC = 独立参考源交叉测频；独立性 = 无共因失效','IWDT 双路径验证：喂狗不复位 + 不喂狗必复位可识别','看门狗管活性不管正确性——体系互补'],
+  next:'下一章：ADC、GPIO 与其他外设诊断。'
+},
+
+ch09: {
+  id:'ch09', no:'09', stage:2, title:'ADC、GPIO 与其他外设诊断',
+  lead:{
+    goal:'掌握 ADC 自校准/一致性检查、GPIO 回读验证、电压/温度监测的原理与边界。',
+    why:'洗衣机靠 ADC 读水温水位、靠 GPIO/输出通道驱动电机与阀——模拟与数字边界的失效最贴近真实事故。',
+    pre:'第 05-08 章。',
+    rel:'POE 输出强制关断是家电安全的最关键一环，重点展开。'
+  },
+  concepts:[
+    {t:'ADC 诊断：用"已知答案"考 ADC', tag:'R', src:'R-AN-ADC',
+     def:'采样片上已知电压（如 VREF），转换结果与预期码值比对；配合多通道轮换检测通道粘连。',
+     body:`<p>库的思路（test_adc.c 实测）：上电诊断 Test_ADC_Start → Test_ADC_Wait；运行中 Test_ADC12_CheckResult 周期调用。检查项：</p>
+     <ul><li><b>参考校验</b>：内部已知电压的转换码值落在容差窗口 → 证明转换增益/失调正常</li>
+     <li><b>通道一致性</b>：多通道轮换，相邻通道读数异常相关 → 粘连（channel crosstalk/stuck）</li></ul>
+     <p><b>边界</b>：这测的是 ADC 本身。传感器漂移（NTC 老化）、线束断路不在 ADC 诊断覆盖内——那是应用层传感器诊断（合理性检查、冗余传感）的职责。</p>`},
+    {t:'温度传感器：合理性窗口', tag:'R', src:'R-AN-TEMP',
+     def:'读片上温度传感器，校验数值在合理范围——特征值（0x000/0xFFF 卡死）与超范围值都报错。',
+     body:`<p>真实调用（已实测）：</p>
+     <p><code>Temperature_Init(TEMPERATURE_ADC_MIN, TEMPERATURE_ADC_MAX, Temperature_Test_Failure);</code></p>
+     <p>周期测试模式很有意思：80ms 回调里只置标志 <code>g_bReadTemperature = TRUE</code>，实际读取在主循环完成——<b>测试调度与业务执行解耦</b>，避免中断上下文做长操作。读出值超 [MIN, MAX] 窗口即触发失败回调。开路/短路的特征码值（贴边 0x000/0xFFF）自然被窗口拦住。</p>`},
+    {t:'电压监测：LVD 阈值比对', tag:'R', src:'R-AN-VOLT',
+     def:'LVD（低压检测）将 VDD 与内部参考比较，越限触发中断/复位；阈值由集成者选择。',
+     body:`<p>真实调用（已实测）：</p>
+     <p><code>VoltageMonitor_Init(VOLTAGE_MONITOR_LEVEL_2_79);</code> —— RA2L1 分支选 2.79V 阈值（RA6 分支为 2.92V）。</p>
+     <p>为什么阈值是集成参数：你的供电设计（LDO 精度、电压裕量）决定"多低算危险"。Flash 写入、RAM 保持、IO 电平在欠压时都不可信——阈值要赶在"不可信"之前触发响应。</p>`},
+    {t:'GPIO：输出回读与输入验证', tag:'R', src:'R-AN-GPIO',
+     def:'输出测试：写电平后回读端口寄存器比对；输入测试：施加已知电平验证读取正确。',
+     body:`<p>库的 gpio.c/gpio_config.h 把测试引脚做成可配置表。要点：</p>
+     <ul><li>回读测的是<b>端口寄存器到引脚</b>的通路（部分 MCU 支持读引脚电平寄存器，能覆盖到焊点/走线级）</li>
+     <li>测试引脚的选择是集成参数：不能选驱动继电器的功率脚（会误动作执行器）</li>
+     <li>别忘了复用为<b>模拟功能</b>的脚也要纳入验证范围（连通性）</li></ul>`},
+    {t:'POE：软件检测、硬件强制关断（家电安全关键）', tag:'R', src:'R-AN-POE',
+     def:'POEG 单元经 IELSRn 事件链接收故障事件，硬件直接把 GPT 输出（GTIOC0A/B）置安全电平——不经过 CPU。',
+     body:`<p>为什么这一项对家电最关键：电机/加热管由 PWM 驱动，故障发生时如果还要"CPU 跑代码去关 PWM"，CPU 恰恰是可能已经坏掉的那个部件。<b>POE 链路完全绕开 CPU</b>：</p>
+     <p>故障事件 → IELSRn 事件链接 → POEG → GPT 输出强制安全电平（硬件路径，μs 级）</p>
+     <p>库的验证方式：真实触发一次 POEG 事件（POE.c + GPT.c 配合），确认 GTIOC 输出确实被关断——即"检测到关断失效"才算诊断有效。引脚定义在 RA_SelfTests.h（RA2L1 分支 GTIOC0A=P415 / GTIOC0B=P414），<span class="tag tag-T" data-src="T-POEPIN">待核实：RA2E1 封装的对应引脚需按数据手册核对</span>。</p>
+     <p>事件链接设置详见应用笔记 Table 2.3（CAC）与 Table 2.7（POEG）——RA2L1 与 RA2E1 设置完全相同（已核实）。</p>`}
+  ],
+  figs:['fig-poe'],
+  figcaps:{'fig-poe':'图 9-1 · POE 链路：故障事件绕过 CPU 直达输出关断（家电安全关键路径）'},
+  sim:'simADC',
+  quiz:[
+    {q:'ADC 用"内部已知电压"做诊断的目的是？', opts:['校准外部传感器','验证 ADC 转换链路（增益/失调）本身正常','省电','降低采样率'], a:1,
+     exp:'采样已知参考电压，码值偏离预期即证明转换链路异常——"用已知答案考试"。它测的是 ADC 自身，不覆盖传感器漂移。', src:'R-AN-ADC'},
+    {q:'库的温度周期测试为何在 80ms 回调里只置标志（g_bReadTemperature=TRUE）？', opts:['避免中断上下文做长操作，测试调度与业务执行解耦','标志是给 DMA 看的','节省寄存器','历史遗留'], a:0,
+     exp:'中断里只做最轻的事（置标志），实际读取放在主循环——这是嵌入式中断设计的通用最佳实践，在本库中体现为"调度与执行解耦"。', src:'R-AN-TEMP'},
+    {q:'POE 诊断链路最重要的特征是？', opts:['由 CPU 软件循环检查 PWM','故障事件经事件链由硬件强制关断输出，不经过 CPU','只能在调试模式触发','需要外接看门狗芯片'], a:1,
+     exp:'POEG→GPT 的硬件路径绕开 CPU——因为故障时 CPU 本身可能已失效。μs 级硬件关断是家电（电机/加热管）安全的最后防线。', src:'R-AN-POE'},
+    {q:'电压监测阈值 VOLTAGE_MONITOR_LEVEL_2_79 的含义是？', opts:['VDD 高于 2.79V 报错','VDD 低于 2.79V 触发响应的集成参数，需按供电设计选择','ADC 满量程','时钟频率阈值'], a:1,
+     exp:'LVD 阈值是"多低算危险"的判据，属集成参数：库给出候选档位（RA2L1 分支 2.79V / RA6 分支 2.92V），最终值要匹配你的电源设计裕量。', src:'R-AN-VOLT'},
+    {q:'GPIO 输出测试"写电平→回读"能覆盖到哪一级？', opts:['只覆盖端口寄存器','覆盖寄存器到引脚的输出通路（支持引脚电平读的 MCU 可到焊点级）','覆盖外部执行器','覆盖传感器'], a:1,
+     exp:'回读覆盖"寄存器→引脚"数字通路；执行器与传感器故障属应用层诊断。测试引脚选择要避开驱动执行器的功率脚。', src:'R-AN-GPIO'}
+  ],
+  summary:['ADC：已知参考码值比对 + 多通道粘连检测；传感器漂移不在覆盖内','温度：合理性窗口 + 调度/执行解耦（中断置标志、主循环读取）','电压：LVD 阈值是集成参数；GPIO：回读验证，避开功率脚','POE：故障事件→IELSRn→POEG→硬件强制关断，绕开 CPU——家电安全最后一道防线'],
+  next:'下一章：进入 RA2E1 工程实践阶段。'
+}
+});
+
+</script>
+<script>
+/* 课程数据 · 阶段三：RA2E1 工程实践（第10-12章） */
+window.CHP = window.CHP || {};
+Object.assign(window.CHP, {
+
+ch10: {
+  id:'ch10', no:'10', stage:3, title:'RA2E1 硬件基础与安全相关资源',
+  lead:{
+    goal:'盘点 RA2E1 与安全自检相关的硬件资源，建立"诊断主题 ↔ 硬件外设"映射。',
+    why:'自检库每一项测试都踩在具体硬件外设上（CAC/POEG/CRC/IWDT/LVD）——硬件能力决定了诊断策略的可行边界。',
+    pre:'第 5-9 章的诊断主题。',
+    rel:'为第 11-12 章的库移植提供硬件底座。'
+  },
+  concepts:[
+    {t:'RA2E1 概览（数据手册 Rev.1.70 核实）', tag:'R', src:'R-DS-OVERVIEW',
+     def:'48MHz Arm Cortex-M23，最高 128KB 代码 Flash、16KB SRAM，CTSU2 电容触摸、12 位 ADC、Security and Safety features。',
+     body:`<p>数据手册首页特性（已核实）：</p>
+     <ul><li>内核：<b>Arm Cortex-M23</b>（Armv8-M Baseline，无 FPU——与库的 FPU 排除一致）</li>
+     <li>存储：最高 128KB Code Flash / 16KB SRAM——<b>RAM 预算紧张</b>，March 测试区规划要精细</li>
+     <li>外设：12-bit A/D Converter、CTSU2、Security/MCU 功能（含 IWDT、LVD、CRC 等）</li></ul>
+     <p>与自检十项逐项对上（外设存在性均已核实）：CPU（内核）✓ / ROM（CRC 外设）✓ / RAM ✓ / 时钟（HOCO+LOCO+IWDTCLK+CAC）✓ / IWDT ✓ / 电压（LVD）✓ / ADC12 ✓ / 温度传感器 ✓ / POEG+GPT ✓ / GPIO ✓。<b>十项在 RA2E1 上硬件全部可行。</b></p>`},
+    {t:'诊断主题 ↔ 硬件外设映射表', tag:'R', src:'R-DS-MAP',
+     def:'每项诊断对应一个（组）硬件资源；硬件手册（User\u2019s Manual: Hardware）是寄存器级细节的权威来源。',
+     body:`<table><tr><th>诊断项</th><th>硬件资源</th><th>硬件手册章节方向</th></tr>
+     <tr><td>CPU 自检</td><td>Cortex-M23 内核寄存器</td><td>CPU/内核章节</td></tr>
+     <tr><td>ROM/CRC</td><td>CRC 外设 + Code Flash</td><td>CRC、Flash 章节</td></tr>
+     <tr><td>RAM</td><td>SRAM</td><td>SRAM/总线</td></tr>
+     <tr><td>时钟监测</td><td>CAC + HOCO/LOCO/IWDTCLK</td><td>时钟生成、CAC</td></tr>
+     <tr><td>IWDT</td><td>独立看门狗 + 独立时钟</td><td>IWDT 章节</td></tr>
+     <tr><td>电压</td><td>LVD</td><td>LVD 章节</td></tr>
+     <tr><td>ADC</td><td>12-bit ADC (ADC12)</td><td>A/D 转换器</td></tr>
+     <tr><td>温度</td><td>片上温度传感器</td><td>温度传感器章节</td></tr>
+     <tr><td>POE</td><td>POEG + GPT + IELSRn(ELC)</td><td>POEG/GPT/事件链接</td></tr>
+     <tr><td>GPIO</td><td>端口 PFS/IOPORT</td><td>端口章节</td></tr></table>
+     <p>注意：ELC/IELSRn 是"事件链接"体系，POE 与 CAC 的中断路由都靠它——应用笔记 Table 2.3/2.7 给出的设置 RA2L1 与 RA2E1 完全相同（已核实）。</p>`},
+    {t:'你的具体型号：R7FA2E1A92DFM', tag:'R', src:'R-DS-PN',
+     def:'命名规则拆解：RA2E1 系列 / A=64 引脚级 / 92=512KB 代码 Flash / D=LQFP / M=64 脚——容量参数决定 CRC 命令与 RAM 测试区。',
+     body:`<p>你工程（FSP 6.6.0）选定的器件 <b>R7FA2E1A92DFM</b>：</p>
+     <ul><li>Code Flash <b>512KB</b> → CRC 注入命令用 512KB 模板（srec 包内有现成命令文件）</li>
+     <li>SRAM 按数据手册确认容量 → RAM March 测试区规划</li>
+     <li>封装 LQFP64 → POE 测试引脚（GTIOC0A/B）按引脚表核对 <span class="tag tag-T" data-src="T-POEPIN">待核实</span></li></ul>
+     <p><span class="tag tag-T" data-src="T-PN">待核实</span> 命名各字段的精确含义请以数据手册订购信息章节为准——课程不凭记忆断言。</p>`},
+    {t:'芯片能力 ≠ 系统安全设计', tag:'E', src:'E-CH10-CAP',
+     def:'硬件提供"可诊断性"，系统安全还需要：诊断策略选择、参数设定、安全状态设计、验证证据。',
+     body:`<p>RA2E1 提供了十项诊断的全部硬件底座，但这只是"能考"，不是"考过"：</p>
+     <ul><li>CAC 在 → 但容差参数、参考源选择是你定的</li>
+     <li>LVD 在 → 但阈值档位要匹配你的电源设计</li>
+     <li>POEG 在 → 但事件链接配置、测试引脚选择是你定的</li></ul>
+     <p>第 13-14 章的验证与设计记录，就是把这些"你定的"变成"有证据的"。</p>`}
+  ],
+  figs:['fig-hwmap'],
+  figcaps:{'fig-hwmap':'图 10-1 · 诊断主题 ↔ RA2E1 硬件外设映射'},
+  sim:null,
+  quiz:[
+    {q:'RA2E1 的内核与 FPU 状态是？', opts:['Cortex-M4 + FPU','Cortex-M23 无 FPU','Cortex-M33 + FPU','Cortex-M0+'], a:1,
+     exp:'RA2E1 = 48MHz Arm Cortex-M23（Armv8-M Baseline），无 FPU。这与 VDE 证书 FPU 例程标 * 不适用于 RA2、库源码宏排除 FPU 测试三重印证。', src:'R-DS-OVERVIEW'},
+    {q:'RA2E1 的 RAM 容量档位（数据手册核实）是？', opts:['16KB','32KB','64KB','8KB'], a:0,
+     exp:'数据手册首页：up to 128-KB code flash memory, 16-KB SRAM。RAM 预算紧张直接影响 March 测试区规划与备份区设计。', src:'R-DS-OVERVIEW'},
+    {q:'以下哪个诊断项在 RA2E1 上"硬件不可行"？', opts:['CRC ROM 校验','CAC 时钟监测','FPU 寄存器测试','POEG 输出关断'], a:2,
+     exp:'RA2E1 无 FPU，FPU 测试无对象；其余三项硬件外设（CRC、CAC、POEG）齐备，十项中九项全部可行。', src:'R-DS-MAP'},
+    {q:'POE 与 CAC 的中断路由共同依赖的硬件机制是？', opts:['DMA','ELC/IELSRn 事件链接','外部中断引脚','RTC'], a:1,
+     exp:'事件链接控制器（ELC/IELSRn）把外设事件路由到指定处理单元——应用笔记 Table 2.3（CAC）与 Table 2.7（POEG）给出寄存器设置，RA2L1/RA2E1 相同。', src:'R-DS-MAP'}
+  ],
+  summary:['RA2E1：48MHz M23 / 128KB Flash / 16KB SRAM / 无 FPU','十项诊断硬件全部可行（FPU 除外，M23 本就无）','诊断主题 ↔ 外设映射：CRC/CAC/IWDT/LVD/POEG/IELSRn','芯片提供"可诊断性"，系统安全靠你的策略+参数+证据'],
+  next:'下一章：Renesas 自检库分析 —— 把库源码翻个底朝天。'
+},
+
+ch11: {
+  id:'ch11', no:'11', stage:3, title:'Renesas 自检库分析',
+  lead:{
+    goal:'掌握库的文件组织、模块职责与 API 全景，能独立读懂任何一项测试的源码。',
+    why:'库是你唯一能完全控制的权威资料——所有 R 类知识都从这里产出。',
+    pre:'第 10 章硬件底座。',
+    rel:'第 12 章在其上做移植与调度工程化。'
+  },
+  concepts:[
+    {t:'库的文件组织（源码地图）', tag:'R', src:'R-LIB-TREE',
+     def:'SelfTestLib/src = 总调度（RA_SelfTests.c）+ 周期 RAM 调度（Test_Usage_RAM.c）+ Tests/ 下 10 个子目录（每项测试一个）。',
+     body:`<table><tr><th>路径</th><th>职责</th></tr>
+     <tr><td>RA_SelfTests.c/.h</td><td>总调度：test_main、Tests_PowerOn、PeriodicTestCallBack、全部失败回调</td></tr>
+     <tr><td>Test_Usage_RAM.c/.h</td><td>运行中 RAM 测试调度</td></tr>
+     <tr><td>hwsetup.h</td><td>时钟常数（EXTAL/IWCK/HOCO）——<b>集成参数集中地</b></td></tr>
+     <tr><td>typedefine.h / Common/misratypes.h</td><td>类型定义（MISRA 合规）</td></tr>
+     <tr><td>Tests/CPU_test/</td><td>cpu_test.c/.h + 34 个 GNU 语法 .asm（GPR 耦合 14 个 + FPU 耦合 19 个 + 主体 3 个）</td></tr>
+     <tr><td>Tests/RAM_test/</td><td>March 族 C 实现 + 3 个启动 .asm</td></tr>
+     <tr><td>Tests/ROM_test/</td><td>crc.c / CRC_Verify.c</td></tr>
+     <tr><td>Tests/CLOCK_test/</td><td>clock_monitor.c（CAC）</td></tr>
+     <tr><td>Tests/IWDT_test/</td><td>iwdt.c</td></tr>
+     <tr><td>Tests/Voltage|Temperature|ADC_test|GPIO|POE_test/</td><td>各外设测试</td></tr></table>`},
+    {t:'器件区分机制与 RA2E1 的位置', tag:'R', src:'R-LIB-MCU-MACRO',
+     def:'库用 _MCU_RA2A1/_MCU_RA4M1/_MCU_RA2L1/_MCU_RA6M1 预定义宏分支；无 _MCU_RA2E1 分支——RA2E1 复用 _MCU_RA2L1 分支（同为 CM23+ADC12）。',
+     body:`<p>源码实证（grep 全库）：</p>
+     <ul><li>voltage.c：<code>#if defined(_MCU_RA2A1)||defined(_MCU_RA4M1)||defined(_MCU_RA2L1)</code> → RA2L1 走 2.79V 阈值分支</li>
+     <li>hwsetup.h：RA2A1/RA2L1 分支 HOCO 48MHz——RA2E1 HOCO 同为 48MHz，适用</li>
+     <li>test_adc.c：注释明示"RA2L1 is here because it is ADC12"——RA2E1 也是 ADC12 ✓</li>
+     <li>RA2L1 示例工程 .cproject：Debug/Release 各配置定义 <code>_MCU_RA2L1</code></li></ul>
+     <p><b>移植结论（工程推断，R 类）</b>：RA2E1 工程的预定义宏添加 <code>_MCU_RA2L1</code>。应用笔记未明文写此对应——是源码结构 + PDF 器件分组（Table 1 中 RA2L1/RA2E1 同列）推出的，标"部分核实"。</p>`},
+    {t:'API 全景与调用关系', tag:'R', src:'R-LIB-API',
+     def:'应用层只需调 test_main()；其余几十个 Xx_Init/Xx_Start/Xx_Check 都是库内部编排，失败统一回调。',
+     body:`<p>调用关系（源码实测）：</p>
+     <pre>hal_entry() → test_main()
+  ├─ Check_ResetCause()           // IWDT 复位原因检查
+  ├─ Tests_PowerOn()              // 上电五步，任一步失败→PowerUpTestFailure
+  │    ├─ CPU_Test_All()          // 失败→CPU_Test_ErrorHandler
+  │    ├─ Tests_PowerOn_RAM()     // March 全量
+  │    ├─ CRC_Init/Start/AddRange/Result → CRC_Verify
+  │    ├─ Test_ADC_Init/Wait
+  │    └─ IWDT_Init()             // 最后
+  ├─ ClockMonitor_Init(..., Clock_Test_Failure)
+  ├─ VoltageMonitor_Init(..., Voltage_Test_Failure)
+  ├─ Temperature_Init(..., Temperature_Test_Failure)
+  ├─ POE/GPT 初始化（POE_Event_Detected 回调）
+  └─ AGT 启动（80ms → PeriodicTestCallBack → 轮转周期测试）</pre>
+     <p>失败回调全部汇聚 <code>Error_Detected_Loop(errno)</code>——错误码定位测试项，响应动作留给你。</p>`},
+    {t:'工具链与验证状态', tag:'T', src:'T-TOOLCHAIN',
+     def:'原工程验证工具链：GCC for ARM（gnuarm，e2 studio）+ IAR EWARM；库汇编为 GNU 语法。armclang（用户工程）未经验证。',
+     body:`<p>事实矩阵：</p>
+     <table><tr><th>工具链</th><th>状态</th><th>依据</th></tr>
+     <tr><td>GCC for ARM（e2 studio）</td><td>✅ 官方验证</td><td>RA2L1 .cproject gnuarm 配置 + 汇编文件头注释</td></tr>
+     <tr><td>IAR EWARM</td><td>✅ 官方提供</td><td>.ewp 工程文件在包内</td></tr>
+     <tr><td>armclang (LLVM 22.1)</td><td>⚠️ 待验证</td><td>你的 RA2E1 工程默认选择；GNU 语法 .asm 理论兼容，需实测</td></tr></table>
+     <p>风险控制：若 armclang 编译 .asm 报错，工程属性中把工具链切回 GCC for ARM 即可（RA2L1 已验证路线）。</p>`}
+  ],
+  figs:['fig-libtree'],
+  figcaps:{'fig-libtree':'图 11-1 · SelfTestLib 源码地图与调用关系'},
+  sim:null,
+  code:[
+    {title:'周期 CRC 的分段累加（真实代码）', src:'SelfTestLib/src/RA_SelfTests.c · PeriodicTest_CRC', code:
+`static void PeriodicTest_CRC(void)
+{
+    static int8_t index = 0;
+    /* 系列范围的开始必须先调 CRC_Start */
+    if (0 == index)
+    {
+        CRC_Start();
+    }
+    /* 每次节拍累加一段（index 推进由调用方管理） */
+    ...
+}`}
+  ],
+  quiz:[
+    {q:'RA2E1 移植时预定义宏应添加？', opts:['_MCU_RA2E1（需自建分支）','_MCU_RA2L1（复用 CM23 分支）','_MCU_RA2A1','都不加'], a:1,
+     exp:'库无 _MCU_RA2E1 分支；RA2L1 与 RA2E1 同为 CM23+ADC12（PDF Table 1 同列），hwsetup/voltage/adc 等分支一致。此为源码实证的工程推断（部分核实）。', src:'R-LIB-MCU-MACRO'},
+    {q:'库中"集成参数集中地"（时钟常数宏）所在的文件是？', opts:['RA_SelfTests.c','hwsetup.h','crc.h','gpio_config.h'], a:1,
+     ext:'', exp:'hwsetup.h 定义 CLOCK_FREQ_EXTAL（外部晶振，评估板 12MHz）、CLOCK_FREQ_IWCK（15kHz）、各分支 HOCO 频率——移植时按你的板子修改，并与 FSP 时钟树保持一致。', src:'R-LIB-TREE'},
+    {q:'库的失败回调最终汇聚到？', opts:['各测试自定义退出','Error_Detected_Loop(errno)','直接 while(1)','NVIC_SystemReset'], a:1,
+     exp:'全部 *_Test_Failure 最终调 Error_Detected_Loop 并带 errno 定位测试项；"进入什么安全状态"留给应用——职责边界清晰。', src:'R-LIB-API'},
+    {q:'判断题：库在 armclang（LLVM）下与在 GCC 下行为完全一致，无需验证。', opts:['正确','错误'], a:1,
+     exp:'官方验证基线是 GCC for ARM 与 IAR；armclang 对 GNU 语法 .asm 的处理理论兼容但未经验证。安全代码换工具链必须重新验证——这是工具链管理的基本纪律。', src:'T-TOOLCHAIN'}
+  ],
+  summary:['源码地图：总调度 + 10 个测试子目录 + hwsetup.h 集成参数','器件分支宏：RA2E1 复用 _MCU_RA2L1（部分核实的工程推断）','应用层 API 只有一个：test_main()；失败统一 Error_Detected_Loop','工具链：GCC/IAR 已验证，armclang 待验证'],
+  next:'下一章：启动自检与运行期自检的工程组织。'
+},
+
+ch12: {
+  id:'ch12', no:'12', stage:3, title:'启动自检与运行期自检（工程组织）',
+  lead:{
+    goal:'以 RA2E1 工程为目标，掌握上电/周期两条测试线的完整工程组织与移植要点。',
+    why:'前面学的原理要落到你自己的工程里：宏、路径、FSP 配置、CRC 后处理，一步都不能少。',
+    pre:'第 10-11 章。',
+    rel:'第 13 章为这个工程产出验证证据。'
+  },
+  concepts:[
+    {t:'移植工程清单（RA2L1 → RA2E1）', tag:'R', src:'R-PORT-CHECK',
+     def:'六步：建 FSP 工程 → 拷贝 SelfTestLib → 定义 _MCU_RA2L1 → 12 条包含路径 → FSP 加 AGT(g_timer0) → srec CRC 后处理。',
+     body:`<p>已验证的移植要点（源自对两工程的实际比对）：</p>
+     <ol><li>FSP 新建 RA2E1 工程（R7FA2E1A92DFM，CM23，无 RTOS）——已完成</li>
+     <li>物理复制 <code>SelfTestLib/src</code> 整树到工程内，Refresh 后自动编译</li>
+     <li>预定义宏 <code>_MCU_RA2L1</code>（Debug/Release 都加）</li>
+     <li>包含路径：SelfTestLib/src + Tests 下 10 个子目录，共 12 条</li>
+     <li>FSP 堆栈仅两项：IOPORT（默认已有）+ <b>AGT</b>：g_timer0 / Channel 0 / Periodic / 80ms / LOCO / Callback=PeriodicTestCallBack</li>
+     <li>Build Steps 加 srec_cat CRC 注入（512KB 模板改地址）</li></ol>
+     <p>不需要添加 ADC/CAC/IWDT/GPT/POEG 的 FSP 堆栈——库寄存器直操作。</p>`},
+    {t:'器件差异核对五项', tag:'T', src:'T-PORT-DIFF',
+     def:'RA2L1→RA2E1 必查：晶振频率 / IWDT 时钟 / POE 引脚 / CRC 范围 / RAM 测试区。',
+     body:`<table><tr><th>#</th><th>核对项</th><th>RA2L1 原值</th><th>RA2E1 处理</th></tr>
+     <tr><td>1</td><td>CLOCK_FREQ_EXTAL</td><td>12.0e6（评估板晶振）</td><td>按你的板子；无晶振则改用 HOCO 并同步 FSP 时钟树</td></tr>
+     <tr><td>2</td><td>CLOCK_FREQ_IWCK</td><td>15.0e3</td><td>IWDTCLK 频率按 RA2E1 硬件手册核实</td></tr>
+     <tr><td>3</td><td>POE 测试引脚</td><td>GTIOC0A=P415 / GTIOC0B=P414</td><td>按 RA2E1 引脚表核对/修改（RA_SelfTests.h）</td></tr>
+     <tr><td>4</td><td>CRC 覆盖范围</td><td>256KB/512KB 模板</td><td>按 512KB 型号 + 实际 map 地址改写</td></tr>
+     <tr><td>5</td><td>RAM 测试区</td><td>RA2L1 布局</td><td>16KB RAM 内避开栈/堆重新规划</td></tr></table>`},
+    {t:'启动自检 vs 运行期自检的责任边界', tag:'R', src:'R-PORT-RESP',
+     def:'上电测试失败 = 系统拒绝启动；运行期测试失败 = 应用执行故障响应——两种失败的处置策略由你分别定义。',
+     body:`<p>库给出了清晰的骨架（已实测）：</p>
+     <ul><li><b>上电失败</b> → <code>PowerUpTestFailure()</code>：系统尚未开始工作，最安全的响应是"拒绝进入运行态"（锁定在安全初始态）</li>
+     <li><b>运行期失败</b> → 各 Xx_Test_Failure → <code>Error_Detected_Loop(errno)</code>：系统正在工作（电机在转、水在加热），响应要考虑"如何安全地停下来"</li></ul>
+     <p>洗衣机语境举例：运行期加热管温控异常 → 断开加热 + 报警 + 禁止再启动；门锁诊断异常 → 保持锁闭 + 报警（不能因为诊断失败反而开门！）。</p>
+     <p><b>避免无条件/无边界循环</b>：Error_Detected_Loop 是锁存等待，不是死循环调试占位——你要在其中实现真正的安全动作序列。</p>`},
+    {t:'自检状态机全景', tag:'E', src:'E-CH12-FSM',
+     def:'把上电序列、周期轮转、故障路径画成一台状态机——这是第 14 章系统设计图的底稿。',
+     body:`<p>状态机（源码实测整理）：</p>
+     <ul><li>RESET → PWR_TEST_CPU → PWR_TEST_RAM → PWR_TEST_CRC → PWR_TEST_ADC → IWDT_ON → MON_INIT → <b>RUNNING</b></li>
+     <li>RUNNING 内部：每 80ms 轮转 CPU→RAM_BUF→RAM→STACK→CRC→ADC→TEMP→(回到起点)</li>
+     <li>任一状态 FAIL → ERROR_LATCH（锁存 errno）→ 应用安全响应 → (可选)RESET</li>
+     <li>RESET 后 Check_ResetCause 检查 IWDT 复位 → 若为故障复位，策略由你定（重试 N 次？永久锁定？）</li></ul>
+     <p>用下面的模拟器跑一遍完整状态机，注入故障观察路径分叉。</p>`}
+  ],
+  figs:['fig-fsm'],
+  figcaps:{'fig-fsm':'图 12-1 · 自检系统状态机：上电序列 → RUNNING 轮转 → 故障锁存'},
+  sim:'simFSM',
+  quiz:[
+    {q:'RA2E1 移植工程需要添加的 FSP 堆栈（除 IOPORT）是？', opts:['ADC12 + CAC + IWDT + GPT 全套','仅 AGT 定时器（g_timer0, 80ms, LOCO）','什么都不用加','AGT + IWDT'], a:1,
+     exp:'库对 CAC/ADC/IWDT/POEG 均寄存器直操作；唯一 FSP 依赖是 AGT 提供的 80ms 节拍（PeriodicTestCallBack）。这是移植工作量小的根本原因。', src:'R-PORT-CHECK'},
+    {q:'运行期测试失败与上电测试失败的处置策略区别是？', opts:['完全相同','上电失败=拒绝进入运行态；运行期失败=执行"安全停下"的响应','都直接复位','都只打日志'], a:1,
+     exp:'上电时系统未工作，拒绝启动即可；运行期系统正在做危险动作（加热/旋转），响应必须设计"如何安全停下来"（洗衣机例：断加热+保持门锁+报警）。', src:'R-PORT-RESP'},
+    {q:'洗衣机运行中出现门锁诊断异常，以下哪个响应方向是"对的思路"？', opts:['解锁开门方便维修','立即上电重启测试','保持锁闭 + 报警 + 禁止新启动（安全态优先）','忽略继续洗涤'], a:2,
+     exp:'安全状态设计的原则：故障后进入"不产生危害"的状态。运行中解锁可能造成夹伤——安全状态的定义必须结合失效后果，这正是"应用职责"的分量。', src:'R-PORT-RESP'},
+    {q:'周期测试轮转到 PERIODIC_TEST_TYPE_RAM 时，若 PeriodicTest_RAM() 返回 FALSE，状态机会？', opts:['强制推进到下一项','停留该项（重试/报错），不盲目前进','直接复位','跳过 RAM 项'], a:1,
+     exp:'源码：if(TRUE == PeriodicTest_RAM()) 才 g_Periodic_Test_Type++——失败不推进，保证每个测试区最终都被确认，不会因一次失败而漏测后续区域。', src:'E-CH12-FSM'}
+  ],
+  summary:['移植六步：工程→源码→宏→路径→AGT→CRC 后处理','差异五查：晶振/IWCK/POE 引脚/CRC 范围/RAM 区','上电失败=拒绝启动；运行期失败=安全停下——两种策略分开设计','状态机：RESET→上电五步→MON_INIT→RUNNING（轮转）→ERROR_LATCH'],
+  next:'下一章：测试、验证与资料追踪。'
+}
+});
+
+</script>
+<script>
+/* 课程数据 · 阶段四：验证与综合应用（第13-14章 + 三个实训） */
+window.CHP = window.CHP || {};
+Object.assign(window.CHP, {
+
+ch13: {
+  id:'ch13', no:'13', stage:4, title:'测试、验证与资料追踪',
+  lead:{
+    goal:'建立"需求 → 设计 → 测试 → 证据"的追踪链，学会写经得起审核的集成记录。',
+    why:'安全设计不缺好点子，缺证据。审核员问的永远不是"你做了吗"，而是"证明给我看"。',
+    pre:'第 5-12 章。',
+    rel:'实训 C 在本章方法上实操。'
+  },
+  concepts:[
+    {t:'需求追踪链', tag:'E', src:'E-CH13-TRACE',
+     def:'标准条款（S）→ 设计决策（R/E）→ 集成参数 → 测试用例 → 测试结果 → 证据归档，环环可回溯。',
+     body:`<p>以本项目真实资料为例搭一条链：</p>
+     <table><tr><th>层级</th><th>内容</th><th>证据</th></tr>
+     <tr><td>需求（S/待核实）</td><td>Class B 要求 CPU/ROM/RAM/…十项测试（H.11.12.1）</td><td>IEC 60730-1:2022 Annex H</td></tr>
+     <tr><td>库能力（R）</td><td>自检库实现十项（RA2 分支支持九项+FPU 排除）</td><td>VDE 检测报告例程清单 + 源码</td></tr>
+     <tr><td>集成决策（R/E）</td><td>定义 _MCU_RA2L1；AGT 80ms；CRC 512KB 范围</td><td>工程 configuration.xml / .cproject</td></tr>
+     <tr><td>测试用例（E）</td><td>TC-CPU-01：上电 CPU 测试 PASS；TC-FLASH-03：注入 CRC 错误→检出</td><td>测试记录</td></tr>
+     <tr><td>结果与版本（E）</td><td>固件版本 X、测试日期、通过/失败、偏差分析</td><td>测试报告</td></tr></table>
+     <p>任何一行断了链，审核时就是开口。</p>`},
+    {t:'测试用例的要素', tag:'E', src:'E-CH13-TC',
+     def:'合格用例 = 前置条件 + 操作步骤 + 预期结果 + 实际结果 + 判定。尤其要会设计"故障注入类用例"。',
+     body:`<p>功能验证（PASS 路径）只证明"正常时对"；<b>故障注入（FAIL 路径）才证明"检测机制真的有效"</b>：</p>
+     <ul><li>TC-FLASH-INJ：构建时故意改错 CRC 期望值 → 预期：上电 CRC 检出，进 Error_Detected_Loop</li>
+     <li>TC-CLK-INJ：把 hwsetup.h 时钟常数改偏 → 预期：CAC 频率比越容差，Clock_Test_Failure 触发</li>
+     <li>TC-IWDT-INJ：注释掉喂狗调用 → 预期：IWDT 超时复位，Check_ResetCause 识别</li></ul>
+     <p>注意：故障注入要在受控环境做（调试器/临时分支），注入代码严禁混入正式发布镜像。</p>`},
+    {t:'资料版本管理', tag:'R', src:'R-CH13-VER',
+     def:'本项目已核实的版本矩阵本身就是资料管理的示范：标准/报告/笔记/手册四层版本各自独立演进。',
+     body:`<p>归档建议（目录即证据）：</p>
+     <pre>project-docs/
+  ├─ 01-standards/    IEC 60730-1:2022.pdf（+ 引用页码快照）
+  ├─ 02-certificates/ certification_RA2_RA4_RA6.pdf（VDE 报告 5027124-4970-0001/293624）
+  ├─ 03-vendor/       R01AN5540EJ0101（Rev.1.01）+ SelfTestLib（源码快照）
+  ├─ 04-mcu-docs/     RA2E1 数据手册 Rev.1.70 + 硬件手册
+  └─ 05-records/      测试用例/测试记录/偏差分析/会议纪要</pre>
+     <p>关键纪律：源码快照要能复现当时测试的二进制（git tag 或 zip 冻结）。</p>`},
+    {t:'自检验证 ≠ 整机验证', tag:'R', src:'R-VDE-SCOPE',
+     def:'库的评估报告证明"这些例程正确实现了设计的诊断"；整机验证还要覆盖：集成正确性、应用逻辑、传感器/执行器、多故障组合。',
+     body:`<p>用 VDE 报告的措辞直接说明边界：报告描述对象是"针对送检样品的一次单独调查结果"，"不授权使用 VDE 认证标志"。</p>
+     <p>整机阶段必须补齐的证据（超出库的范围）：</p>
+     <ul><li>集成参数的验证（时钟常数与实际硬件一致、CRC 范围覆盖全部代码段）</li>
+     <li>安全状态动作的有效性（真实断电时间、锁闭保持力等——量化的）</li>
+     <li>应用层传感器/执行器诊断（库不管 NTC 老化）</li>
+     <li>EMC 环境下的诊断稳定性（现场干扰会不会让 CAC 误报/漏报）</li></ul>`}
+  ],
+  figs:['fig-trace'],
+  figcaps:{'fig-trace':'图 13-1 · 需求→设计→测试→证据追踪链'},
+  sim:'simTrace',
+  quiz:[
+    {q:'证明"ROM CRC 检测机制真的有效"的最有力用例类型是？', opts:['正常上电观察 CRC PASS','故障注入：故意改错期望值，验证被检出','看代码走查','提高主频再测'], a:1,
+     exp:'PASS 路径只证明正常时没报错；注入故障并验证被检出，才证明检测机制本身有效。三类经典注入：CRC 期望值、时钟常数、停喂看门狗。', src:'E-CH13-TC'},
+    {q:'需求追踪链中，"断链"指？', opts:['网络断了','任何一层（需求→设计→参数→用例→结果→归档）缺少对应证据','编译失败','版本太新'], a:1,
+     exp:'审核追溯是双向的：从条款往下找证据、从证据往上对需求。任何一层对应不上就是开口，需要偏差分析或补充验证。', src:'E-CH13-TRACE'},
+    {q:'以下哪项是"自检库评估报告"不覆盖、必须整机阶段补齐的？', opts:['库源码的 March 算法正确性','集成参数（时钟常数）与实际硬件的一致性','CRC 多项式实现','FPU 例程对 M23 的适用性'], a:1,
+     exp:'报告评估的是库代码本身；时钟常数、CRC 范围等集成参数是你设的，必须自己验证。b/c/d 都在库/报告覆盖范围内。', src:'R-VDE-SCOPE'},
+    {q:'源码归档的关键纪律是？', opts:['只存 .c/.h','快照要能复现当时测试的二进制（版本冻结）','邮件备份','放桌面'], a:1,
+     exp:'证据的意义在于可复现：git tag/zip 冻结源码 + 记录工具链版本 + 保留最终镜像，才能在审核期重建"当时测的到底是什么"。', src:'R-CH13-VER'}
+  ],
+  summary:['追踪链：条款→库能力→集成决策→用例→结果→归档','故障注入用例证明检测机制有效（三类经典注入）','版本矩阵四层独立演进，归档目录即证据','库评估 ≠ 整机验证：集成参数、安全状态有效性、应用层诊断、EMC 稳定性都要补'],
+  next:'下一章：完整控制器安全设计（洗衣机案例）。'
+},
+
+ch14: {
+  id:'ch14', no:'14', stage:4, title:'完整控制器安全设计（洗衣机案例）',
+  lead:{
+    goal:'把全部知识整合成一台"洗衣机电子控制器"的安全设计，并产出设计评审清单。',
+    why:'这是全课程的收束：从条款到代码到证据，走一遍完整设计流程。',
+    pre:'全部前序章节。',
+    rel:'实训 A 以本章为蓝本，实训 B/C 提供源码与记录实操。'
+  },
+  concepts:[
+    {t:'系统框图与故障传播', tag:'E', src:'E-CH14-SYS',
+     def:'传感器 → MCU 控制器 → 执行器；每个环节的故障沿数据流向传播，诊断机制在各节点拦截。',
+     body:`<p>洗衣机控制链（教学模型）：</p>
+     <pre>NTC水温 ─┐
+水位开关 ─┤→ MCU(RA2E1) → 加热管(PWM+POE) ─→ 水温
+门锁状态 ─┘   ├→ 电机驱动              ─→ 滚筒
+              └→ 进水阀/排水阀          ─→ 水位/排水</pre>
+     <p>故障传播示例：<b>NTC 开路 → ADC 读到卡死码值 → 温度判断错 → 加热失控。</b>拦截点：温度合理性窗口（第 9 章）+ 加热回路的 POE 硬件关断（第 9 章）+ Class B 十项自检保 MCU 自身健康。</p>`},
+    {t:'诊断策略矩阵', tag:'E', src:'E-CH14-MATRIX',
+     def:'为每个安全功能列出：危害、诊断机制、检测时机、响应、覆盖缺口——一张表管全局。',
+     body:`<table><tr><th>安全功能</th><th>危害</th><th>诊断机制</th><th>响应（安全状态）</th></tr>
+     <tr><td>水温控制</td><td>过热/烫伤/起火</td><td>温度合理性窗口 + CAC 保时钟 + MCU 十项</td><td>断加热 PWM（POE 硬件路径）+ 报警</td></tr>
+     <tr><td>门锁联锁</td><td>运行中开门夹伤</td><td>门锁状态回读 + GPIO 验证</td><td>保持锁闭 + 禁止启动 + 报警</td></tr>
+     <tr><td>水位控制</td><td>溢水</td><td>水位信号合理性 + 上电 ADC 诊断</td><td>关进水阀 + 开排水 + 报警</td></tr>
+     <tr><td>滚筒驱动</td><td>意外旋转</td><td>GPT/POEG 输出关断路径验证</td><td>POE 强制关断 + 锁定</td></tr></table>
+     <p>注意<b>覆盖缺口</b>列不出来才是问题——如实写"传感器漂移由年度维护覆盖"这类补丁也是设计。</p>`},
+    {t:'安全状态的设计原则', tag:'R', src:'R-PORT-RESP',
+     def:'安全状态=不产生危害且可持续保持的状态；要定义进入路径、保持方式、退出条件（通常：人工确认后才能退出）。',
+     body:`<p>三条设计原则：</p>
+     <ul><li><b>宁可保守</b>：洗衣机故障时"全部停+锁闭+报警"几乎总是安全方向；"重启试试"几乎总是错误方向</li>
+     <li><b>硬件兜底</b>：危险输出的关断必须走 POE 类硬件路径，不能依赖"软件记得去关"（第 9 章）</li>
+     <li><b>退出需人工</b>：故障锁存后不允许自动恢复运行——重现的故障不是偶发，是缺陷</li></ul>
+     <p>与库的衔接：Error_Detected_Loop 锁存 errno 后，你的代码在此实现上述动作序列。</p>`},
+    {t:'设计评审清单', tag:'E', src:'E-CH14-REVIEW',
+     def:'交付前自查 10 问——每问都要能指向证据。',
+     body:`<ol><li>每个安全功能的 Class 定级有依据吗？</li>
+     <li>十项自检全部集成并逐项验证 PASS？</li>
+     <li>故障注入用例覆盖三大类（CRC/时钟/看门狗）？</li>
+     <li>CRC 范围覆盖全部代码段？期望值走构建后处理？</li>
+     <li>时钟常数与实际硬件一致（晶振/无晶振路线）？</li>
+     <li>IWDT 超时窗口覆盖最慢合法任务？</li>
+     <li>RAM 测试区避开栈/堆？RA2E1 16KB 预算核对？</li>
+     <li>POE 关断路径硬件验证过（真实触发）？</li>
+     <li>安全状态动作有量化验证（断电时间/锁闭保持）？</li>
+     <li>版本矩阵与归档完整（标准/报告/库/手册/记录）？</li></ol>`}
+  ],
+  figs:['fig-sys'],
+  figcaps:{'fig-sys':'图 14-1 · 洗衣机控制器系统框图与故障传播'},
+  sim:null,
+  quiz:[
+    {q:'NTC 温度传感器开路，ADC 读到卡死码值。本设计中的拦截点（按纵深防御顺序）是？', opts:['只有年度校准','温度合理性窗口拦截 → 若失控由 POE 硬件关断加热兜底','依赖用户闻到焦味','提高 ADC 采样率'], a:1,
+     exp:'纵深防御：应用层合理性检查先拦；若温度判断已被欺骗，加热输出的 POEG 硬件关断是最后防线（不经过 CPU）。单点防御在安全设计里不合格。', src:'E-CH14-MATRIX'},
+    {q:'故障锁存后，"自动重启恢复运行"通常是错误方向，因为？', opts:['浪费电池','重现性故障说明存在缺陷，自动恢复会让危险循环出现','用户不喜欢','重启会丢数据'], a:1,
+     exp:'退出安全状态应需人工确认。可复现的故障=设计缺陷，自动恢复意味着缺陷反复暴露——安全状态设计三原则之一。', src:'R-PORT-RESP'},
+    {q:'设计评审清单第 8 问"POE 关断路径硬件验证"的正确做法是？', opts:['代码走查确认配置正确','真实触发一次 POEG 事件，示波器确认 GTIOC 输出确实关断','相信厂商文档','只做仿真'], a:1,
+     exp:'输出关断是硬件事件链路径，配置对不对最终要靠实测：注入事件→测输出脚电平变化。这也是库中 POE 测试的设计思想。', src:'R-AN-POE'}
+  ],
+  summary:['系统框图 + 故障传播 + 拦截点 = 诊断策略矩阵','安全状态三原则：宁可保守 / 硬件兜底 / 退出需人工','评审清单 10 问，每问指向证据'],
+  next:'进入三个综合实训。'
+},
+
+labA: {
+  id:'labA', no:'A', stage:4, title:'实训 A · 温控器安全诊断设计',
+  lead:{
+    goal:'独立完成一个温度控制器的诊断策略设计（输入采集→控制→故障检测→安全响应）。',
+    why:'把第 14 章的矩阵方法亲手走一遍，检验是否真的会用。',
+    pre:'第 13-14 章。',
+    rel:'与实训 B（源码阅读）、实训 C（验证记录）构成综合收束。'
+  },
+  concepts:[
+    {t:'设计任务书（E 类教学练习）', tag:'E', src:'E-LABA-TASK',
+     def:'给定：加热管 800W、NTC 测温、RA2E1 控制器、目标 Class B。产出：诊断策略矩阵 + 安全状态定义 + 验证用例清单。',
+     body:`<p>要求（全部为教学练习，非正式认证文件）：</p>
+     <ol><li>列出至少 4 个失效场景（NTC 开路/短路、过温、MCU 故障、输出驱动失效）</li>
+     <li>为每个场景指定：检测机制（库十项中的哪项/应用层什么手段）+ 检测时机（上电/周期/在线）</li>
+     <li>定义安全状态动作序列（谁先断、多快、如何保持）</li>
+     <li>设计 3 条故障注入用例</li>
+     <li>标注每个决策的来源类型（S/R/E）</li></ol>`},
+    {t:'参考答案要点（自评）', tag:'E', src:'E-LABA-ANS',
+     def:'对照要点自评，重点看"覆盖缺口"和"硬件兜底"两条有没有想到。',
+     body:`<ul><li>NTC 开路→特征码值贴边→合理性窗口拦（应用层，E）</li>
+     <li>过温→独立于软件的硬件路径：POEG 事件关断加热 PWM（R，第 9 章）</li>
+     <li>MCU 故障→十项自检（R）+ IWDT 活性兜底</li>
+     <li>输出驱动失效→GPIO/POE 回读验证（R）</li>
+     <li>缺口如实标注：传感器老化漂移→维护策略覆盖（E）</li>
+     <li>常见漏项：安全状态的"保持方式"（断电后重上电是否自动恢复？——应为否，需人工确认）</li></ul>`}
+  ],
+  figs:[], sim:null, quiz:[],
+  summary:['产出：诊断策略矩阵 + 安全状态定义 + 3 条注入用例 + 来源标注'],
+  next:'实训 B：自检库源码阅读。'
+},
+
+labB: {
+  id:'labB', no:'B', stage:4, title:'实训 B · RA2E1 自检库阅读',
+  lead:{
+    goal:'按任务单精读库源码，产出真实的函数清单与调用关系（禁止虚构 API）。',
+    why:'R 类知识的终极检验：所有结论必须能在源码中指出行。',
+    pre:'第 11-12 章。',
+    rel:'产出直接喂给实训 C 的证据栏。'
+  },
+  concepts:[
+    {t:'阅读任务单', tag:'R', src:'R-LABB-TASK',
+     def:'五个任务：test_main 全流程 / PeriodicTestCallBack 状态机 / CRC 链路 / CAC 初始化 / 故障回调汇聚。',
+     body:`<p>任务单（全部在本地 SelfTestLib 完成，不虚构）：</p>
+     <ol><li>画出 <code>test_main()</code> 从进入到无限循环的完整调用树（含每个 Init 的失败回调名）</li>
+     <li>列出 <code>PeriodicTestCallBack</code> 状态机的全部状态常量及顺序（PERIODIC_TEST_TYPE_*）</li>
+     <li>从 <code>CRCcalcCmd512KB.txt</code> 到 <code>CRC_Verify()</code> 画出 CRC 双端链路，标注取反细节（~CRC_value）</li>
+     <li>在 <code>clock_monitor.c</code> 找到寄存器写保护序列（PRCR 两处赋值的值）</li>
+     <li>统计全部 *_Test_Failure 函数并确认都汇聚 Error_Detected_Loop</li></ol>
+     <p>源码位置：<code>D:/Superfly/AI/IEC60730/r01an5540ej0101-ra-cm4_cm23-iec60730/.../SelfTestLib/src/</code></p>`},
+    {t:'已验证答案卡（自查对照）', tag:'R', src:'R-LABB-ANS',
+     def:'课程构建时已实测的答案要点，供你核对——但请先自己做。',
+     body:`<ul><li>上电链：ConfigurePins→ConfigureClock→NMI 注册→RamTest_March_HW_Init→ClockMonitor_Init→VoltageMonitor_Init→Test_ADC_Start→Temperature_Init→（POE）→IWDT_Init（注意：部分初始化在 test_main 主体，IWDT 在 Tests_PowerOn 末尾——以你的源码版本为准）</li>
+     <li>轮转状态：CPU→(DTC_RAM)→RAM_BUFFER→RAM→STACK→(USTACK 条件禁用)→CRC→ADC→TEMPERATURE→default 重置</li>
+     <li>PRCR：0xA502 解锁 / 0xA500 恢复</li>
+     <li>CRC_Verify 比对的是 <b>~CRC_value</b>（取反）与 CRC_ADDRESS 处的 32 位参考值</li></ul>`}
+  ],
+  figs:[], sim:null, quiz:[],
+  summary:['产出：调用树 + 状态常量表 + CRC 链路图 + 写保护序列 + 失败函数清单'],
+  next:'实训 C：需求与验证记录。'
+},
+
+labC: {
+  id:'labC', no:'C', stage:4, title:'实训 C · 需求与验证记录',
+  lead:{
+    goal:'用第 13 章方法为你的设计建立追踪表与测试记录（明确标注：教学练习，非认证报告）。',
+    why:'安全工程的产出物是记录，不是口头结论。',
+    pre:'实训 A/B。',
+    rel:'课程完结，产出的模板可直接用于真实项目。'
+  },
+  concepts:[
+    {t:'追踪表模板', tag:'E', src:'E-LABC-TRACE',
+     def:'五列表：需求（来源）/ 设计决策 / 集成参数 / 验证用例 / 结果与证据。',
+     body:`<p>起手三行（示例，照着扩写）：</p>
+     <table><tr><th>需求</th><th>设计决策</th><th>参数</th><th>用例</th><th>结果</th></tr>
+     <tr><td>Class B CPU 测试（H.11.12.1，待核实）</td><td>库 CPU_Test_All（R）</td><td>无</td><td>TC-CPU-01 上电 PASS</td><td>待填</td></tr>
+     <tr><td>Class B ROM 完整性</td><td>CRC 构建注入+运行比对（R）</td><td>512KB 范围</td><td>TC-FLASH-03 注入检出</td><td>待填</td></tr>
+     <tr><td>洗衣机加热安全（E）</td><td>POEG 硬件关断（R）</td><td>GTIOC0A/B 引脚</td><td>TC-POE-01 实测关断</td><td>待填</td></tr></table>
+     <p>用第 13 章的追踪表模拟器演练，然后把最终版导出归档。</p>`},
+    {t:'结业自查', tag:'E', src:'E-LABC-DONE',
+     def:'课程完成的判定：17 单元测验全过 + 实训三件套产出 + 全部知识点来源可追溯。',
+     body:`<ul><li>□ 14 章测验全部通过（进度条 100%）</li>
+     <li>□ 实训 A 矩阵 + 用例</li>
+     <li>□ 实训 B 五任务清单（真实源码行号）</li>
+     <li>□ 实训 C 追踪表</li>
+     <li>□ 能不看资料说出：故障链五环节 / March-C 六步 / CRC 双端链路 / IWDT 双路径 / POE 硬件路径</li></ul>
+     <p>下一步的真实世界：RA2E1 移植工程跑通 → 逐项点亮十项 → 故障注入演示 → 归档。课程教的是"怎么想"，工程给你的是"证据"。</p>`}
+  ],
+  figs:[], sim:'simTrace', quiz:[],
+  summary:['追踪表五列模板起手三行','结业判定：测验全过 + 三件套产出 + 来源可追溯'],
+  next:'课程完结。'
+}
+});
+
+</script>
+<script>
+/* 来源映射数据库（source-map）+ 术语表 */
+window.SRCMAP = {
+/* ===== S 类：标准要求 ===== */
+'S-STD-DEF':  {t:'S｜标准要求', doc:'IEC 60730-1:2022（正式文本，扫描版）', ver:'Ed 5.0, 2022', ref:'范围与定义章节（以 PDF 页码为准）', mcu:'通用', verified:'部分核实', note:'文本已取得；扫描版无机读，页码级引用需人工核对'},
+'S-STD-WHY':  {t:'S｜标准要求', doc:'IEC 60730-1:2022 Annex H', ver:'Ed 5.0, 2022', ref:'Annex H 总则', mcu:'通用', verified:'部分核实', note:'核心思路转述自标准结构与厂商文档交叉印证'},
+'S-PART1':    {t:'S｜标准要求', doc:'IEC 60730-1:2022', ver:'Ed 5.0, 2022', ref:'Part 1 结构', mcu:'通用', verified:'部分核实', note:'610 页扫描版在手'},
+'S-PART2':    {t:'S｜标准要求', doc:'IEC 60730-2 系列', ver:'待取得', ref:'洗衣机相关：2-6/2-7/2-9/2-12（候选）', mcu:'通用', verified:'待核实', note:'具体适用 Part 2 需按标准文本与认证机构意见确认'},
+/* ===== R 类：Renesas 实现 ===== */
+'R-AN-NOTE1': {t:'R｜瑞萨实现', doc:'R01AN5540EJ0101-ra-vde_240531.pdf', ver:'Rev.1.01, 2024-05-31, p1 Note 1', ref:'EN60335-1:2002/A1:2004 Annex R 转引 EN60730-1:2000', mcu:'RA 全系', verified:'已核实', note:'认证版本链的重要原文'},
+'R-AN-TABLE1':{t:'R｜瑞萨实现', doc:'R01AN5540EJ0101 Table 1 (p2)', ver:'Rev.1.01', ref:'RA MCU Self-Test Function List', mcu:'RA2E1 在列（CM23 列）', verified:'已核实', note:'RA2L1/RA2E1/2E2/2E3 同列'},
+'R-AN-CLASS': {t:'R｜瑞萨实现', doc:'R01AN5540EJ0101 (p1)', ver:'Rev.1.01', ref:'Class A/B/C 定义与例子', mcu:'通用', verified:'已核实（厂商转述）', note:'正式定义以标准原文为准'},
+'R-VDE-SCOPE':{t:'R｜VDE 检测报告', doc:'certification_RA2_RA4_RA6.pdf', ver:'Ref 5027124-4970-0001/293624, 2022-06-22', ref:'p2 报告效力声明', mcu:'RA2(M23)/RA4,RA6(M4)/RA4,RA6(M33)', verified:'已核实', note:'Prüfbericht：不授权使用 VDE 认证标志'},
+'R-VDE-STDS': {t:'R｜VDE 检测报告', doc:'certification_RA2_RA4_RA6.pdf', ver:'2022-06-22', ref:'评估标准清单', mcu:'同上', verified:'已核实', note:'EN 60730-1:2016+A1:2019 / IEC 60730-1:2013+AMD1:2015+AMD2:2020 / EN/IEC 60335-1 系列'},
+'R-VDE-ROUTINES':{t:'R｜VDE 检测报告', doc:'certification_RA2_RA4_RA6.pdf', ver:'2022-06-22, p3-4', ref:'例程清单与 * 标记', mcu:'RA2 M23', verified:'已核实', note:'FPU 例程标 * 不适用于 RA2 (Cortex-M23)；例程版本 1.x/2.x'},
+'R-AN-TESTS': {t:'R｜瑞萨实现', doc:'SelfTestLib 源码', ver:'配套 Rev.1.01', ref:'各 Tests/ 子目录', mcu:'RA2E1（经 RA2L1 分支）', verified:'已核实', note:'自检+在线监测两类机制并存'},
+'R-AN-ERRLOOP':{t:'R｜瑞萨实现', doc:'SelfTestLib/src/RA_SelfTests.c', ver:'配套 Rev.1.01', ref:'Error_Detected_Loop / IWDT_Kick 注释', mcu:'同上', verified:'已核实', note:'安全状态为应用职责（源码注释原文）'},
+'R-AN-ARCH':  {t:'R｜瑞萨实现', doc:'SelfTestLib/src/RA_SelfTests.c', ver:'配套 Rev.1.01', ref:'test_main / Tests_PowerOn / PeriodicTestCallBack', mcu:'同上', verified:'已核实', note:'三层诊断架构源码实测'},
+'R-AN-MAIN':  {t:'R｜瑞萨实现', doc:'Project/RA2L1/src/hal_entry.c + RA_SelfTests.c', ver:'配套 Rev.1.01', ref:'hal_entry 42 行 / test_main 主体', mcu:'RA2L1（RA2E1 参照）', verified:'已核实', note:''},
+'R-AN-IWDT-ORDER':{t:'R｜瑞萨实现', doc:'SelfTestLib/src/RA_SelfTests.c · Tests_PowerOn', ver:'配套 Rev.1.01', ref:'IWDT_Init 位置', mcu:'同上', verified:'已核实', note:'IWDT 最后初始化'},
+'R-AN-CPU-LIST':{t:'R｜瑞萨实现', doc:'R01AN5540EJ0101 §1.1 Table 1.1', ver:'Rev.1.01, p5', ref:'寄存器测试清单', mcu:'M4/M23 对照', verified:'已核实', note:'M23 无 FPU 列'},
+'R-AN-CPU-55AA':{t:'R｜瑞萨实现', doc:'SelfTestLib/src/Tests/CPU_test/*.asm + cpu_test.c', ver:'配套 Rev.1.01', ref:'0x55/0xAA 与耦合测试族', mcu:'同上', verified:'已核实', note:'TestGPRsCoupling* 14 个'},
+'R-AN-CPU-ASM':{t:'R｜瑞萨实现', doc:'CPU_Test_Control.asm 头注释', ver:'配套 Rev.1.01', ref:'关中断警告 / R1-R4 假设 / 工具链声明', mcu:'RA2/RA4/RA6', verified:'已核实', note:'GCC/IAR 双工具链声明'},
+'R-AN-MARCH': {t:'R｜瑞萨实现', doc:'SelfTestLib/src/Tests/RAM_test/ramtest_march_c.c 头注释', ver:'配套 Rev.1.01', ref:'March-C 六步', mcu:'同上', verified:'已核实', note:'STEP1-6 原文'},
+'R-AN-RAM-PER':{t:'R｜瑞萨实现', doc:'RA_SelfTests.c · PeriodicTest_RAM/Stack', ver:'配套 Rev.1.01', ref:'分块+备份恢复', mcu:'同上', verified:'已核实', note:''},
+'R-AN-CRC':   {t:'R｜瑞萨实现', doc:'srec/CRCcalcCmd512KB.txt + CRC_Verify.c + PeriodicTest_CRC', ver:'配套 Rev.1.01', ref:'CRC 双端链路', mcu:'同上', verified:'已核实', note:'取反比对 ~CRC_value'},
+'R-AN-CAC':   {t:'R｜瑞萨实现', doc:'Tests/CLOCK_test/clock_monitor.c + RA_SelfTests.c 调用', ver:'配套 Rev.1.01', ref:'ClockMonitor_Init（PRCR 0xA502/0xA500）', mcu:'同上', verified:'已核实', note:'HOCO vs IWDTCLK 15kHz'},
+'R-AN-IWDT':  {t:'R｜瑞萨实现', doc:'Tests/IWDT_test/iwdt.c + Check_ResetCause', ver:'配套 Rev.1.01', ref:'IWDT_Init / IWDT_DidReset', mcu:'同上', verified:'已核实', note:'双路径验证'},
+'R-AN-ADC':   {t:'R｜瑞萨实现', doc:'Tests/ADC_test/test_adc.c', ver:'配套 Rev.1.01', ref:'Test_ADC_Start / CheckResult；注释"RA2L1 is here because it is ADC12"', mcu:'RA2E1 同 ADC12', verified:'已核实', note:''},
+'R-AN-TEMP':  {t:'R｜瑞萨实现', doc:'RA_SelfTests.c · Temperature_Init + g_bReadTemperature', ver:'配套 Rev.1.01', ref:'窗口校验+调度解耦', mcu:'同上', verified:'已核实', note:''},
+'R-AN-VOLT':  {t:'R｜瑞萨实现', doc:'Tests/Voltage/voltage.c', ver:'配套 Rev.1.01', ref:'_MCU_RA2L1 分支 VOLTAGE_MONITOR_LEVEL_2_79', mcu:'RA2E1 复用', verified:'已核实', note:'RA6 分支 2.92V'},
+'R-AN-GPIO':  {t:'R｜瑞萨实现', doc:'Tests/GPIO/gpio.c / gpio_config.h', ver:'配套 Rev.1.01', ref:'引脚配置表', mcu:'同上', verified:'已核实', note:''},
+'R-AN-POE':   {t:'R｜瑞萨实现', doc:'Tests/POE_test/POE.c, GPT.c + RA_SelfTests.h + PDF Table 2.7', ver:'配套 Rev.1.01', ref:'POEG 事件链；RA2L1 引脚 GTIOC0A=P415/GTIOC0B=P414', mcu:'RA2E1 引脚待核', verified:'部分核实', note:'IELSRn 设置 RA2L1/RA2E1 相同（p61-69）'},
+'R-DS-OVERVIEW':{t:'R｜瑞萨资料', doc:'RA2E1 Group Datasheet r01ds0386ej0170', ver:'Rev.1.70, 2025-10-31', ref:'首页特性', mcu:'RA2E1', verified:'已核实', note:'48MHz M23 / 128KB Flash / 16KB SRAM / CTSU2 / ADC12'},
+'R-DS-MAP':   {t:'R｜瑞萨资料', doc:'RA2E1 Datasheet + Hardware Manual + PDF Table 2.3/2.7', ver:'见各文档', ref:'外设存在性', mcu:'RA2E1', verified:'已核实', note:'十项硬件全可行（FPU 无对象）'},
+'R-DS-PN':    {t:'R｜瑞萨资料', doc:'RA2E1 Datasheet 订购信息', ver:'Rev.1.70', ref:'R7FA2E1A92DFM 命名', mcu:'RA2E1', verified:'部分核实', note:'字段含义以手册为准'},
+'R-LIB-TREE': {t:'R｜瑞萨实现', doc:'SelfTestLib 目录结构', ver:'配套 Rev.1.01', ref:'源码地图', mcu:'同上', verified:'已核实', note:''},
+'R-LIB-MCU-MACRO':{t:'R｜瑞萨实现', doc:'voltage.c / hwsetup.h / test_adc.c / RA2L1 .cproject', ver:'配套 Rev.1.01', ref:'_MCU_* 宏分支', mcu:'RA2E1→复用 _MCU_RA2L1', verified:'部分核实', note:'工程推断：源码结构+Table 1 分组，应用笔记未明文'},
+'R-LIB-API':  {t:'R｜瑞萨实现', doc:'RA_SelfTests.c', ver:'配套 Rev.1.01', ref:'调用关系', mcu:'同上', verified:'已核实', note:''},
+'R-PORT-CHECK':{t:'R｜工程实测', doc:'RA2E1_IEC60730 工程 + RA2L1 工程比对', ver:'FSP 6.6.0', ref:'移植清单', mcu:'RA2E1 R7FA2E1A92DFM', verified:'已核实', note:'AGT g_timer0 80ms LOCO PeriodicTestCallBack'},
+'R-PORT-RESP':{t:'R｜瑞萨实现', doc:'RA_SelfTests.c', ver:'配套 Rev.1.01', ref:'PowerUpTestFailure / Error_Detected_Loop', mcu:'同上', verified:'已核实', note:'两种失败两种策略'},
+'R-CH13-VER': {t:'R｜工程实践', doc:'本项目版本矩阵', ver:'见第 2 章', ref:'归档方法', mcu:'—', verified:'已核实', note:''},
+'R-LABB-TASK':{t:'R｜源码实测', doc:'SelfTestLib 源码', ver:'配套 Rev.1.01', ref:'实训 B 任务对应全部可查', mcu:'同上', verified:'已核实', note:''},
+'R-LABB-ANS': {t:'R｜源码实测', doc:'SelfTestLib 源码', ver:'同上', ref:'答案卡', mcu:'同上', verified:'已核实', note:'状态常量/PRCR 值/取反细节均实测'},
+/* ===== T 类：待核实 ===== */
+'T-CERT-CHAIN':{t:'待核实', doc:'应用笔记 Note 1 vs VDE 报告', ref:'版本链 2000→2013+AMD→2022 文本', verified:'待核实', note:'三个版本三种用途'},
+'T-PART2':    {t:'待核实', doc:'IEC 60730-2 系列', ref:'洗衣机适用 Part 2 清单', verified:'待核实', note:'候选 2-6/2-7/2-9/2-12，需按文本核实'},
+'T-SCAN':     {t:'待核实', doc:'IEC 60730-1:2022.pdf', ref:'扫描版页码', verified:'待核实', note:'无机读文本，引用页码需人工标注'},
+'T-HCL':      {t:'待核实', doc:'IEC 60730-1:2022 Annex H', ref:'H.11.12.1 条款原文', verified:'待核实', note:'课程当前对应关系为 R 类反推'},
+'T-PORT':     {t:'待核实', doc:'RA2E1 移植工程', ref:'RA2E1 上实测通过', verified:'待核实', note:'工程已建，待编译/上板验证'},
+'T-PORT-DIFF':{t:'待核实', doc:'RA2L1→RA2E1 差异核对表', ref:'晶振/IWCK/POE 引脚/CRC 范围/RAM 区五项', verified:'待核实', note:'依据见第 12 章；核对完成前保持待核实'},
+'T-POEPIN':   {t:'待核实', doc:'RA2E1 Datasheet/HW Manual', ref:'GTIOC0A/B 在目标封装的引脚', verified:'待核实', note:'RA2L1 值 P415/P414 不可直接沿用'},
+'T-PN':       {t:'待核实', doc:'RA2E1 Datasheet', ref:'R7FA2E1A92DFM 命名字段', verified:'待核实', note:'以订购信息章节为准'},
+'T-TOOLCHAIN':{t:'待核实', doc:'RA2E1 工程（armclang 22.1.0）', ref:'库编译兼容性', verified:'待核实', note:'GCC/IAR 已验证；armclang 实测前标待验证'}
+};
+
+window.GLOSSARY = {
+'Annex H':'IEC 60730-1 的附录 H，规定使用软件的电子控制系统的要求：软件分级（Class A/B/C）与各级测试要求（表 H.11.12.1），是嵌入式软件工程师的核心章节。',
+'Class B':'Annex H 软件分级的中级：控制功能用于防止设备不安全运行。白色家电（洗衣机/洗碗机/冰箱/灶具）趋于此类，触发十项自检要求。',
+'故障 (Fault)':'系统内部可能导出失效的异常状态（如 RAM 位翻转）。与失效（failure，功能偏离）严格区分——诊断机制在两者之间拦截。',
+'失效 (Failure)':'功能丧失或偏离预期（如加热器该停没停）。诊断的目标是让故障不演变为失效。',
+'安全状态 (Safe State)':'系统不会造成危害的状态。其定义是应用职责——洗衣机与灶具的安全状态完全不同，只有懂产品的人能定义。',
+'自检 (Self-Test)':'系统对自身硬件的主动检查，需要占用 CPU 执行时间（如 RAM March、CPU 寄存器写读）。',
+'在线监测 (Online Monitoring)':'配置一次后由硬件持续工作的检测手段（如 CAC 测频、LVD 监视电压、POEG 监听故障），不占 CPU 测试时间。',
+'周期测试 (Periodic Test)':'运行期间分块轮转执行的自检：由定时器节拍（库中 80ms）调度，每拍只测一小块并备份/恢复数据，兼顾实时性与覆盖。',
+'March 算法':'RAM 测试算法族：按固定序列对每个单元执行读-写走查（如 March-C 六步），能覆盖卡位与耦合故障。升序+降序对称覆盖耦合的两个方向。',
+'CRC (Cyclic Redundancy Check)':'循环冗余校验。ROM 诊断用法：构建时 srec_cat 计算 CRC 注入镜像尾部，运行时重算比对。存在理论漏检图样（多位组合恰好余 0），概率极低但非零。',
+'CAC':'Clock Frequency Accuracy Measurement Circuit，时钟频率精度测量电路。用独立参考时钟测主频，频率比超容差报警——RA2E1 安全相关外设之一。',
+'POEG':'Port Output Enable Gating，端口输出使能门控单元。经事件链接收故障事件，硬件直接把 GPT PWM 输出置安全电平，不经过 CPU——家电安全最后一道防线。',
+'IELSRn':'事件链接系统的通道寄存器（Event Link Controller）。把外设事件路由到指定处理单元，CAC/POEG 的中断路由依赖它（应用笔记 Table 2.3/2.7）。',
+'IWDT':'Independent Watchdog，独立看门狗。使用独立时钟（不随主时钟失效），验证思路为双路径：喂狗不复位 + 停喂必复位可识别。',
+'LVD':'Low Voltage Detection，低压检测。将 VDD 与内部参考比较，越限触发中断/复位。阈值档位是集成参数。',
+'srec_cat':'S-record 处理工具。本项目用于构建后处理：ROM 填充→裁剪计算区→计算 CRC→写入期望值→输出新镜像。',
+'PRCR':'RA 系列寄存器保护寄存器。关键寄存器写保护：先写 0xA502 解锁，操作后写 0xA500 恢复（源码实测序列）。',
+'HOCO':'High Speed On-Chip Oscillator，高速片上振荡器。RA2E1 为 48MHz，是 hwsetup.h 中 CLOCK_FREQ_HOCO 常数的来源。',
+'IWDTCLK / LOCO':'独立看门狗时钟/低速片上振荡器（约 15kHz）。CAC 监测的独立参考源与 IWDT 的时钟来源。',
+'VDE':'德国电气工程师协会检验认证研究所（VDE Prüf- und Zertifizierungsinstitut GmbH）。本项目库的检测机构：Prüfbericht ref 5027124-4970-0001/293624（2022-06-22）。',
+'Prüfbericht':'德语"检测报告"。VDE 报告首页明示：报告包含一次单独调查的结果，不授权使用 VDE 认证标志——检测报告≠认证证书≠认证标志。',
+'耦合故障 (Coupling Fault)':'写一个存储/寄存器单元导致相邻单元变化的故障。单寄存器 0x55/0xAA 测试测不出，需要耦合测试（散布图样交叉验证）。'
+};
+
+</script>
+<script>
+/* SVG 图库 + 交互模拟器（全部 E 类教学示例，非真实硬件测试） */
+window.FIGURES = {
+figClosure:{w:680,h:150,svg:`<svg viewBox="0 0 680 150"><defs><marker id="ar" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#3fd0d3"/></marker></defs>
+<rect x="20" y="50" width="150" height="50" rx="9" fill="#26354a" stroke="#3fd0d3"/><text x="95" y="80" fill="#d7dde6" font-size="14" text-anchor="middle">正常运行</text>
+<rect x="260" y="50" width="160" height="50" rx="9" fill="#26354a" stroke="#e0a83c"/><text x="340" y="72" fill="#e0a83c" font-size="13" text-anchor="middle">故障检测</text><text x="340" y="90" fill="#8b96a5" font-size="11" text-anchor="middle">自检 / 在线监测</text>
+<rect x="510" y="50" width="150" height="50" rx="9" fill="#26354a" stroke="#e06c5c"/><text x="585" y="80" fill="#e06c5c" font-size="14" text-anchor="middle">安全状态</text>
+<path d="M170,68 L255,68" stroke="#3fd0d3" stroke-width="1.6" marker-end="url(#ar)"/><path d="M420,68 L505,68" stroke="#e06c5c" stroke-width="1.6" marker-end="url(#ar)"/>
+<path d="M560,100 C560,135 120,135 95,103" stroke="#4caf7d" stroke-width="1.6" fill="none" marker-end="url(#ar)"/>
+<text x="340" y="138" fill="#4caf7d" font-size="12" text-anchor="middle">未检出：继续运行（持续监测）</text>
+<text x="215" y="58" fill="#8b96a5" font-size="11" text-anchor="middle">检出</text><text x="462" y="58" fill="#8b96a5" font-size="11" text-anchor="middle">FAIL</text></svg>`},
+figStdtree:{w:680,h:210,svg:`<svg viewBox="0 0 680 210">
+<rect x="270" y="12" width="150" height="42" rx="9" fill="#26354a" stroke="#3fd0d3"/><text x="345" y="38" fill="#d7dde6" font-size="14" text-anchor="middle">IEC 60730 系列</text>
+<rect x="60" y="90" width="170" height="46" rx="9" fill="#222833" stroke="#5b8dd9"/><text x="145" y="110" fill="#5b8dd9" font-size="13" text-anchor="middle">Part 1 通用要求</text><text x="145" y="127" fill="#8b96a5" font-size="10.5" text-anchor="middle">2022 版在手</text>
+<rect x="260" y="90" width="170" height="46" rx="9" fill="#222833" stroke="#e0a83c"/><text x="345" y="110" fill="#e0a83c" font-size="13" text-anchor="middle">Part 2-x 专项要求</text><text x="345" y="127" fill="#8b96a5" font-size="10.5" text-anchor="middle">2-6 水位 / 2-9 温度 / 2-12 门锁*</text>
+<rect x="460" y="90" width="170" height="46" rx="9" fill="#222833" stroke="#4caf7d"/><text x="545" y="110" fill="#4caf7d" font-size="13" text-anchor="middle">Annex H 软件要求</text><text x="545" y="127" fill="#8b96a5" font-size="10.5" text-anchor="middle">分级 + 表 H.11.12.1</text>
+<path d="M330,54 L145,88 M345,54 L345,88 M360,54 L545,88" stroke="#3fd0d3" fill="none"/>
+<text x="345" y="175" fill="#7a8494" font-size="11" text-anchor="middle">* 候选，待按标准文本核实　│　本课程主线：Annex H Class B → 表 H.11.12.1 → 自检库十项</text></svg>`},
+figFaultchain:{w:680,h:130,svg:`<svg viewBox="0 0 680 130">
+<g font-size="12" text-anchor="middle"><rect x="12" y="40" width="112" height="46" rx="8" fill="#222833" stroke="#e0a83c"/><text x="68" y="60" fill="#e0a83c">① 故障源</text><text x="68" y="76" fill="#8b96a5" font-size="10">CPU/RAM/时钟…</text>
+<rect x="150" y="40" width="112" height="46" rx="8" fill="#222833" stroke="#3fd0d3"/><text x="206" y="60" fill="#3fd0d3">② 诊断机制</text><text x="206" y="76" fill="#8b96a5" font-size="10">十项+监测</text>
+<rect x="288" y="40" width="112" height="46" rx="8" fill="#222833" stroke="#3fd0d3"/><text x="344" y="60" fill="#3fd0d3">③ 故障判定</text><text x="344" y="76" fill="#8b96a5" font-size="10">Error_Detected_Loop</text>
+<rect x="426" y="40" width="112" height="46" rx="8" fill="#222833" stroke="#e06c5c"/><text x="482" y="60" fill="#e06c5c">④ 故障响应</text><text x="482" y="76" fill="#8b96a5" font-size="10">应用职责</text>
+<rect x="564" y="40" width="108" height="46" rx="8" fill="#222833" stroke="#4caf7d"/><text x="618" y="60" fill="#4caf7d">⑤ 安全状态</text><text x="618" y="76" fill="#8b96a5" font-size="10">验证证据</text></g>
+<path d="M124,63 L148,63 M262,63 L286,63 M400,63 L424,63 M538,63 L562,63" stroke="#3fd0d3" stroke-width="1.5"/>
+<text x="340" y="115" fill="#7a8494" font-size="11" text-anchor="middle">任一环节缺失 = 整链无效（第 5-14 章逐环节填充）</text></svg>`},
+figClassabc:{w:680,h:190,svg:`<svg viewBox="0 0 680 190">
+<g font-size="12.5" text-anchor="middle">
+<rect x="40" y="20" width="180" height="120" rx="10" fill="#26354a" stroke="#5b8dd9"/><text x="130" y="48" fill="#5b8dd9" font-weight="bold">Class A</text><text x="130" y="72" fill="#d7dde6" font-size="11">不依赖其保证安全</text><text x="130" y="92" fill="#8b96a5" font-size="10.5">室温/湿度/照明/定时</text><text x="130" y="112" fill="#8b96a5" font-size="10.5">要求最低</text>
+<rect x="250" y="20" width="180" height="140" rx="10" fill="#26354a" stroke="#009A9D" stroke-width="2.5"/><text x="340" y="48" fill="#3fd0d3" font-weight="bold">Class B ★</text><text x="340" y="72" fill="#d7dde6" font-size="11">防止不安全运行</text><text x="340" y="92" fill="#8b96a5" font-size="10.5">热断路 / 门锁</text><text x="340" y="112" fill="#8b96a5" font-size="10.5">洗衣机/洗碗机/冰箱/灶具</text><text x="340" y="132" fill="#3fd0d3" font-size="10.5">十项自检（本课程主线）</text>
+<rect x="460" y="20" width="180" height="160" rx="10" fill="#26354a" stroke="#e06c5c"/><text x="550" y="48" fill="#e06c5c" font-weight="bold">Class C</text><text x="550" y="72" fill="#d7dde6" font-size="11">防止特殊危险</text><text x="550" y="92" fill="#8b96a5" font-size="10.5">自动燃烧器控制</text><text x="550" y="112" fill="#8b96a5" font-size="10.5">要求最严</text></g>
+<text x="340" y="182" fill="#7a8494" font-size="11" text-anchor="middle">分级对象是"控制功能"，同一台设备内可混合分级</text></svg>`},
+figSchedule:{w:680,h:200,svg:`<svg viewBox="0 0 680 200">
+<line x1="40" y1="40" x2="650" y2="40" stroke="#8b96a5"/><text x="40" y="28" fill="#8b96a5" font-size="11">复位</text><text x="620" y="28" fill="#8b96a5" font-size="11">运行…</text>
+<g font-size="10.5" text-anchor="middle"><rect x="50" y="32" width="52" height="16" rx="3" fill="#6cb6ff"/><text x="76" y="68" fill="#6cb6ff">CPU</text>
+<rect x="104" y="32" width="70" height="16" rx="3" fill="#8fd0a0"/><text x="139" y="68" fill="#8fd0a0">RAM 全量</text>
+<rect x="176" y="32" width="60" height="16" rx="3" fill="#e0a83c"/><text x="206" y="68" fill="#e0a83c">ROM CRC</text>
+<rect x="238" y="32" width="44" height="16" rx="3" fill="#d79be0"/><text x="260" y="68" fill="#d79be0">ADC</text>
+<rect x="284" y="32" width="52" height="16" rx="3" fill="#e08b8b"/><text x="310" y="68" fill="#e08b8b">IWDT 开</text></g>
+<text x="160" y="95" fill="#7a8494" font-size="11" text-anchor="middle">第一层：上电全量（可破坏性）→ 第二层：监测初始化（CAC/LVD/温度/POE 配置一次持续工作）</text>
+<g font-size="10" text-anchor="middle"><text x="40" y="130" fill="#8b96a5">80ms 节拍</text>
+<g transform="translate(0,0)"><rect x="120" y="120" width="46" height="14" rx="3" fill="#6cb6ff"/><text x="143" y="130" fill="#101318" font-size="9">CPU</text><rect x="166" y="120" width="46" height="14" rx="3" fill="#8fd0a0"/><text x="189" y="130" fill="#101318" font-size="9">RAM块</text><rect x="212" y="120" width="46" height="14" rx="3" fill="#e0a83c"/><text x="235" y="130" fill="#101318" font-size="9">栈</text><rect x="258" y="120" width="46" height="14" rx="3" fill="#d79be0"/><text x="281" y="130" fill="#101318" font-size="9">CRC</text><rect x="304" y="120" width="46" height="14" rx="3" fill="#e08b8b"/><text x="327" y="130" fill="#101318" font-size="9">ADC</text><rect x="350" y="120" width="52" height="14" rx="3" fill="#5bc8d9"/><text x="376" y="130" fill="#101318" font-size="9">温度</text></g>
+<g transform="translate(120,0)" opacity=".95"><rect x="402" y="120" width="46" height="14" rx="3" fill="#6cb6ff"/><rect x="448" y="120" width="46" height="14" rx="3" fill="#8fd0a0"/><rect x="494" y="120" width="46" height="14" rx="3" fill="#e0a83c"/><rect x="540" y="120" width="46" height="14" rx="3" fill="#d79be0"/></g></g>
+<g stroke="#e06c5c"><line x1="120" y1="140" x2="120" y2="156"/><line x1="212" y1="140" x2="212" y2="156"/><line x1="304" y1="140" x2="304" y2="156"/></g>
+<text x="480" y="152" fill="#e06c5c" font-size="10.5">每 80ms 重复一轮（分段 CRC 多轮完成全片）</text>
+<text x="40" y="182" fill="#7a8494" font-size="11">第三层：周期轮转（分块+备份恢复）→ 测试占用率约 0.1~1%</text></svg>`},
+figWalking:{w:680,h:170,svg:`<svg viewBox="0 0 680 170">
+<g font-family="Consolas,monospace" font-size="11" text-anchor="middle">
+<text x="80" y="30" fill="#8b96a5">位序</text><text x="80" y="95" fill="#8b96a5">位序</text>
+<g>${(()=>{let c='';for(let b=7;b>=0;b--){c+=`<text x="${140+(7-b)*52}" y="30" fill="#d7dde6">b${b}</text>`;}return c;})()}</g>
+<rect x="100" y="42" width="440" height="26" rx="5" fill="#1f2f44" stroke="#6cb6ff"/><text x="320" y="60" fill="#8fd0a0" letter-spacing="6">0x55 01010101</text>
+<rect x="100" y="106" width="440" height="26" rx="5" fill="#1f2f44" stroke="#6cb6ff"/><text x="320" y="124" fill="#e0a83c" letter-spacing="6">0xAA 10101010</text>
+<text x="580" y="60" fill="#8b96a5" font-size="10">某位卡0 → 读回≠0x55 ✓检出</text>
+<text x="580" y="124" fill="#8b96a5" font-size="10">某位卡1 → 读回≠0xAA ✓检出</text></g>
+<text x="340" y="158" fill="#7a8494" font-size="11" text-anchor="middle">互补图样逐位翻转：卡位故障无处可藏　│　耦合故障需 TestGPRsCoupling* 族交叉验证</text></svg>`},
+figMarch:{w:680,h:190,svg:`<svg viewBox="0 0 680 190">
+<g font-size="11.5"><g text-anchor="middle"><rect x="30" y="18" width="140" height="30" rx="6" fill="#222833" stroke="#4caf7d"/><text x="100" y="37" fill="#4caf7d">STEP1 全写 0</text>
+<rect x="190" y="18" width="150" height="30" rx="6" fill="#222833" stroke="#3fd0d3"/><text x="265" y="37" fill="#3fd0d3">STEP2 ↑读0写1</text>
+<rect x="360" y="18" width="150" height="30" rx="6" fill="#222833" stroke="#3fd0d3"/><text x="435" y="37" fill="#3fd0d3">STEP3 ↑读1写0</text></g>
+<g text-anchor="middle"><rect x="30" y="60" width="150" height="30" rx="6" fill="#222833" stroke="#e0a83c"/><text x="105" y="79" fill="#e0a83c">STEP6 全读 0 ✓</text>
+<rect x="200" y="60" width="150" height="30" rx="6" fill="#222833" stroke="#e0a83c"/><text x="275" y="79" fill="#e0a83c">STEP5 ↓读1写0</text>
+<rect x="370" y="60" width="150" height="30" rx="6" fill="#222833" stroke="#e0a83c"/><text x="445" y="79" fill="#e0a83c">STEP4 ↓读0写1</text></g>
+<path d="M300,95 L340,95" stroke="#e06c5c" stroke-width="1.5"/><path d="M336,91 L344,95 L336,99" fill="none" stroke="#e06c5c" stroke-width="1.5"/>
+<text x="420" y="99" fill="#8b96a5" font-size="10.5">升序（STEP2/3）+ 降序（STEP4/5）对称：覆盖耦合故障两个方向</text>
+<text x="40" y="130" fill="#d7dde6" font-size="11">上电：全量破坏性 March（数据尚未使用）</text>
+<text x="40" y="150" fill="#d7dde6" font-size="11">运行中：分块 + 测前备份 + 测后恢复（数据透明）</text>
+<text x="40" y="170" fill="#7a8494" font-size="10.5">RA2E1 SRAM 仅 16KB → 测试区避开栈/堆，规划是集成参数</text></g></svg>`},
+figCrcflow:{w:680,h:170,svg:`<svg viewBox="0 0 680 170">
+<g font-size="11.5" text-anchor="middle"><rect x="20" y="20" width="150" height="52" rx="8" fill="#222833" stroke="#e0a83c"/><text x="95" y="42" fill="#e0a83c">构建时（PC）</text><text x="95" y="60" fill="#8b96a5" font-size="10">srec_cat 算 CRC 注入镜像尾</text>
+<rect x="210" y="20" width="130" height="52" rx="8" fill="#222833" stroke="#3fd0d3"/><text x="275" y="42" fill="#3fd0d3">烧录</text><text x="275" y="60" fill="#8b96a5" font-size="10">含期望值的镜像</text>
+<rect x="380" y="20" width="130" height="52" rx="8" fill="#222833" stroke="#3fd0d3"/><text x="445" y="42" fill="#3fd0d3">上电</text><text x="445" y="60" fill="#8b96a5" font-size="10">全片算 → CRC_Verify</text>
+<rect x="540" y="20" width="120" height="52" rx="8" fill="#222833" stroke="#e0a83c"/><text x="600" y="42" fill="#e0a83c">运行中</text><text x="600" y="60" fill="#8b96a5" font-size="10">分段累加（static index）</text></g>
+<path d="M170,46 L208,46 M340,46 L378,46 M510,46 L538,46" stroke="#3fd0d3" stroke-width="1.5"/>
+<g font-family="Consolas,monospace" font-size="11" fill="#d7dde6"><text x="30" y="105">result = CRC_Verify(~CRC_value, CRC_ADDRESS);  /* 取反比对 */</text></g>
+<text x="30" y="135" fill="#e06c5c" font-size="10.5">✗ 大忌：期望值硬编码进源码（代码一改 CRC 必变）</text>
+<text x="30" y="155" fill="#4caf7d" font-size="10.5">✓ 正确：期望值由构建后处理自动注入，CRC 范围覆盖全部代码段</text></svg>`},
+figCac:{w:680,h:170,svg:`<svg viewBox="0 0 680 170">
+<g font-size="12" text-anchor="middle"><rect x="30" y="30" width="130" height="50" rx="8" fill="#26354a" stroke="#e0a83c"/><text x="95" y="52" fill="#e0a83c">HOCO 被测</text><text x="95" y="70" fill="#8b96a5" font-size="10">48MHz 主时钟</text>
+<rect x="30" y="100" width="130" height="50" rx="8" fill="#26354a" stroke="#4caf7d"/><text x="95" y="122" fill="#4caf7d">IWDTCLK 参考</text><text x="95" y="140" fill="#8b96a5" font-size="10">15kHz 独立振荡</text>
+<rect x="260" y="60" width="150" height="60" rx="8" fill="#222833" stroke="#3fd0d3"/><text x="335" y="86" fill="#3fd0d3">CAC 计频窗口</text><text x="335" y="104" fill="#8b96a5" font-size="10">参考开门 · 被测计数</text>
+<rect x="470" y="60" width="180" height="60" rx="8" fill="#222833" stroke="#e06c5c"/><text x="560" y="82" fill="#d7dde6" font-size="11">频率比 vs 标称±容差</text><text x="560" y="102" fill="#e06c5c" font-size="10.5">越界 → Clock_Test_Failure</text></g>
+<path d="M160,55 C210,55 220,80 258,85 M160,125 C210,125 220,100 258,95" stroke="#3fd0d3" fill="none"/><path d="M410,90 L468,90" stroke="#3fd0d3" stroke-width="1.5"/>
+<text x="335" y="148" fill="#7a8494" font-size="11" text-anchor="middle">独立性 = 无共因失效：主频漂移时参考不受牵连，比值才会"说真话"</text></svg>`},
+figPoe:{w:680,h:160,svg:`<svg viewBox="0 0 680 160">
+<g font-size="12" text-anchor="middle"><rect x="20" y="52" width="110" height="50" rx="8" fill="#26354a" stroke="#e0a83c"/><text x="75" y="74" fill="#e0a83c">故障事件</text><text x="75" y="92" fill="#8b96a5" font-size="10">任意源</text>
+<rect x="165" y="52" width="110" height="50" rx="8" fill="#222833" stroke="#3fd0d3"/><text x="220" y="74" fill="#3fd0d3">IELSRn</text><text x="220" y="92" fill="#8b96a5" font-size="10">事件链接</text>
+<rect x="310" y="52" width="100" height="50" rx="8" fill="#222833" stroke="#3fd0d3"/><text x="360" y="74" fill="#3fd0d3">POEG</text><text x="360" y="92" fill="#8b96a5" font-size="10">门控单元</text>
+<rect x="445" y="52" width="110" height="50" rx="8" fill="#222833" stroke="#e06c5c"/><text x="500" y="74" fill="#e06c5c">GTIOC0A/B</text><text x="500" y="92" fill="#8b96a5" font-size="10">强制安全电平</text>
+<rect x="590" y="52" width="76" height="50" rx="8" fill="#26354a" stroke="#4caf7d"/><text x="628" y="82" fill="#4caf7d" font-size="11">电机/加热</text></g>
+<path d="M130,77 L163,77 M275,77 L308,77 M410,77 L443,77 M555,77 L588,77" stroke="#3fd0d3" stroke-width="1.8"/>
+<rect x="250" y="8" width="180" height="28" rx="8" fill="none" stroke="#e06c5c" stroke-dasharray="4 3"/><text x="340" y="26" fill="#e06c5c" font-size="11" text-anchor="middle">CPU 可能已失效 → 完全绕开</text>
+<path d="M340,36 L360,50" stroke="#e06c5c" stroke-dasharray="4 3" fill="none"/>
+<text x="340" y="140" fill="#7a8494" font-size="11" text-anchor="middle">μs 级硬件路径（不经过软件）｜家电安全的最后防线｜验证：真实触发事件，实测输出关断</text></svg>`},
+figHwmap:{w:680,h:220,svg:`<svg viewBox="0 0 680 220">
+<g font-size="11" text-anchor="middle">${(()=>{const rows=[['CPU 自检','Cortex-M23 内核'],['ROM/CRC','CRC 外设+Flash'],['RAM','SRAM 16KB'],['时钟','CAC+HOCO/LOCO'],['IWDT','IWDT+独立时钟'],['电压','LVD'],['ADC','ADC12'],['温度','片上温度传感器'],['POE','POEG+GPT+ELC'],['GPIO','端口 PFS/IOPORT']];let s='';rows.forEach((r,i)=>{const y=14+i*20;s+=`<text x="230" y="${y+14}" fill="#d7dde6" text-anchor="end">${r[0]}</text><line x1="245" y1="${y+10}" x2="300" y2="${y+10}" stroke="#3fd0d3"/><rect x="300" y="${y}" width="200" height="17" rx="4" fill="#26354a" stroke="#3fd0d3"/><text x="400" y="${y+13}" fill="#8fd0a0" font-size="10.5">${r[1]}</text>`;});return s;})()}</g>
+<text x="560" y="60" fill="#4caf7d" font-size="12" text-anchor="middle">十项硬件</text><text x="560" y="80" fill="#4caf7d" font-size="12" text-anchor="middle">全部可行 ✓</text>
+<text x="560" y="105" fill="#e06c5c" font-size="11" text-anchor="middle">FPU 除外</text><text x="560" y="123" fill="#8b96a5" font-size="10" text-anchor="middle">M23 无 FPU</text></svg>`},
+figLibtree:{w:680,h:230,svg:`<svg viewBox="0 0 680 230">
+<g font-family="Consolas,monospace" font-size="11">
+<text x="20" y="24" fill="#3fd0d3">SelfTestLib/src/</text>
+<text x="40" y="46" fill="#d7dde6">├ RA_SelfTests.c/.h   <tspan fill="#8b96a5">总调度: test_main / PowerOn / PeriodicCallBack / 失败回调</tspan></text>
+<text x="40" y="68" fill="#d7dde6">├ Test_Usage_RAM.c/.h <tspan fill="#8b96a5">运行中 RAM 调度</tspan></text>
+<text x="40" y="90" fill="#d7dde6">├ hwsetup.h           <tspan fill="#e0a83c">★ 集成参数: EXTAL/IWCK/HOCO 常数</tspan></text>
+<text x="40" y="112" fill="#d7dde6">├ typedefine.h  Common/misratypes.h</text>
+<text x="40" y="134" fill="#d7dde6">└ Tests/</text>
+<text x="70" y="156" fill="#d7dde6">├ CPU_test/  <tspan fill="#8b96a5">cpu_test.c + 34 .asm (GPR耦合14/FPU耦合19/主体)</tspan></text>
+<text x="70" y="178" fill="#d7dde6">├ RAM_test/  ROM_test/  CLOCK_test/  IWDT_test/</text>
+<text x="70" y="200" fill="#d7dde6">└ Voltage/ Temperature/ ADC_test/ GPIO/ POE_test/</text></g>
+<text x="20" y="222" fill="#7a8494" font-size="10.5">调用入口唯一: hal_entry() → test_main()　│　失败汇聚: Error_Detected_Loop(errno)</text></svg>`},
+figFsm:{w:680,h:200,svg:`<svg viewBox="0 0 680 200">
+<g font-size="10.5" text-anchor="middle">
+<rect x="15" y="30" width="66" height="30" rx="15" fill="#26354a" stroke="#8b96a5"/><text x="48" y="49" fill="#d7dde6">RESET</text>
+<rect x="95" y="30" width="86" height="30" rx="6" fill="#222833" stroke="#6cb6ff"/><text x="138" y="49" fill="#6cb6ff">PWR_CPU</text>
+<rect x="195" y="30" width="86" height="30" rx="6" fill="#222833" stroke="#6cb6ff"/><text x="238" y="49" fill="#6cb6ff">PWR_RAM</text>
+<rect x="295" y="30" width="86" height="30" rx="6" fill="#222833" stroke="#e0a83c"/><text x="338" y="49" fill="#e0a83c">PWR_CRC</text>
+<rect x="395" y="30" width="86" height="30" rx="6" fill="#222833" stroke="#d79be0"/><text x="438" y="49" fill="#d79be0">PWR_ADC</text>
+<rect x="495" y="30" width="80" height="30" rx="6" fill="#222833" stroke="#e08b8b"/><text x="535" y="49" fill="#e08b8b">IWDT_ON</text>
+<rect x="589" y="30" width="76" height="30" rx="6" fill="#222833" stroke="#4caf7d"/><text x="627" y="49" fill="#4caf7d">RUNNING</text></g>
+<path d="M81,45 L93,45 M181,45 L193,45 M281,45 L293,45 M381,45 L393,45 M481,45 L493,45 M575,45 L587,45" stroke="#4caf7d" stroke-width="1.4"/>
+<g font-size="10.5" text-anchor="middle">
+<rect x="120" y="100" width="440" height="34" rx="17" fill="#222833" stroke="#3fd0d3"/><text x="340" y="122" fill="#3fd0d3">80ms 轮转: CPU → RAM_BUF → RAM → STACK → CRC → ADC → TEMP → (循环)</text>
+<rect x="120" y="156" width="440" height="34" rx="10" fill="#26354a" stroke="#e06c5c"/><text x="340" y="178" fill="#e06c5c">ERROR_LATCH（锁存 errno → 应用安全响应 → 人工确认才可退出）</text></g>
+<path d="M627,60 C627,90 560,100 560,98" stroke="#4caf7d" fill="none"/><path d="M500,100 L500,154" stroke="#e06c5c" stroke-width="1.4" stroke-dasharray="5 3"/>
+<text x="515" y="130" fill="#e06c5c" font-size="10">任一 FAIL</text></svg>`},
+figTrace:{w:680,h:170,svg:`<svg viewBox="0 0 680 170">
+<g font-size="11" text-anchor="middle">${(()=>{const cols=['标准条款 (S)','库能力 (R)','集成决策 (R/E)','测试用例 (E)','结果/归档 (E)'];let s='';cols.forEach((c,i)=>{s+=`<rect x="${15+i*132}" y="40" width="120" height="52" rx="8" fill="#222833" stroke="#3fd0d3"/><text x="${75+i*132}" y="70" fill="#d7dde6" font-size="10.5">${c}</text>`;if(i<4)s+=`<path d="M${135+i*132},66 L${147+i*132},66" stroke="#3fd0d3" stroke-width="1.5" marker-end="url(#ar)"/>`;});return s;})()}</g>
+<text x="30" y="125" fill="#d7dde6" font-size="11">正向追溯：条款 → 我用了什么证据满足它</text>
+<text x="30" y="148" fill="#e0a83c" font-size="11">反向追溯：每个证据 → 对应哪条需求　│　断链 = 审核开口</text></svg>`},
+figSys:{w:680,h:200,svg:`<svg viewBox="0 0 680 200">
+<g font-size="11" text-anchor="middle"><rect x="20" y="24" width="110" height="40" rx="8" fill="#26354a" stroke="#4caf7d"/><text x="75" y="48" fill="#8fd0a0" font-size="10.5">NTC 水温</text>
+<rect x="20" y="76" width="110" height="40" rx="8" fill="#26354a" stroke="#4caf7d"/><text x="75" y="100" fill="#8fd0a0" font-size="10.5">水位开关</text>
+<rect x="20" y="128" width="110" height="40" rx="8" fill="#26354a" stroke="#4caf7d"/><text x="75" y="152" fill="#8fd0a0" font-size="10.5">门锁状态</text>
+<rect x="220" y="70" width="170" height="90" rx="10" fill="#222833" stroke="#009A9D" stroke-width="2"/><text x="305" y="98" fill="#3fd0d3">MCU RA2E1</text><text x="305" y="118" fill="#8b96a5" font-size="10">十项自检 + 应用逻辑</text><text x="305" y="138" fill="#e0a83c" font-size="10">诊断策略矩阵 (第14章)</text>
+<rect x="480" y="24" width="170" height="40" rx="8" fill="#26354a" stroke="#e06c5c"/><text x="565" y="42" fill="#e06c5c" font-size="10.5">加热管 (PWM+POE)</text><text x="565" y="58" fill="#8b96a5" font-size="9.5">硬件关断兜底</text>
+<rect x="480" y="76" width="170" height="40" rx="8" fill="#26354a" stroke="#3fd0d3"/><text x="565" y="94" fill="#3fd0d3" font-size="10.5">电机驱动</text><text x="565" y="110" fill="#8b96a5" font-size="9.5">POEG 关断路径</text>
+<rect x="480" y="128" width="170" height="40" rx="8" fill="#26354a" stroke="#3fd0d3"/><text x="565" y="146" fill="#3fd0d3" font-size="10.5">进水阀/排水阀</text><text x="565" y="162" fill="#8b96a5" font-size="9.5">GPIO 验证</text></g>
+<path d="M130,44 C180,44 190,90 218,95 M130,96 L218,105 M130,148 C180,148 190,120 218,115" stroke="#4caf7d" fill="none"/>
+<path d="M390,95 C430,70 440,50 478,45 M390,105 L478,96 M390,115 C430,140 440,145 478,148" stroke="#3fd0d3" fill="none"/>
+<text x="305" y="185" fill="#7a8494" font-size="10.5" text-anchor="middle">故障传播：NTC 开路 → 卡死码值 → 温度误判 → 加热失控；拦截：合理性窗口 → POE 硬件关断（纵深防御）</text></svg>`}
+};
+
+/* ===== 交互模拟器 ===== */
+window.SIMS = {};
+/* kebab-case 别名（章节引用 fig-xxx，定义用 figXxx） */
+Object.keys(window.FIGURES).forEach(k=>{window.FIGURES[k.replace(/([A-Z])/g,(m,c)=>'-'+c.toLowerCase())]=window.FIGURES[k];});
+window.initSims = function(){
+  /* --- 故障链 --- */
+  window.SIMS.simFaultChain = function(el){
+    el.innerHTML = `<h4>交互实验 · 故障链演示</h4><div class="snote">E｜教学示例。点击环节将其"击穿"，观察整链状态。</div>
+    <div class="ctrl" id="fcBtns">${['故障源','诊断机制','故障判定','故障响应','安全状态'].map((n,i)=>`<button class="ghost" data-i="${i}">击穿 ${n}</button>`).join('')}<button id="fcReset">重置</button></div>
+    <div class="disp" id="fcOut">链条完整：故障将被拦截在演变为失效之前。逐个"击穿"环节试试。</div>`;
+    const out=el.querySelector('#fcOut');
+    const msgs=['故障源失效：正常世界本来就有故障——所以才需要诊断机制。','诊断机制被击穿：故障无人拦截，潜伏故障无限期存活。','故障判定失效：检出了却没有汇聚上报——等于没检出。','故障响应缺失：知道有故障但什么都不做——认证直接不通过。','安全状态未定义：链路最后一环断裂，危害仍会发生。'];
+    el.querySelectorAll('#fcBtns button[data-i]').forEach(b=>b.onclick=()=>{out.className='disp bad';out.textContent='✗ '+msgs[b.dataset.i];});
+    el.querySelector('#fcReset').onclick=()=>{out.className='disp';out.textContent='链条完整：故障将被拦截在演变为失效之前。';};
+  };
+  /* --- Class 判断器 --- */
+  window.SIMS.simClassABC = function(el){
+    const qs=[
+      {q:'洗涤节奏（正反转交替）控制',a:0,e:'节奏乱了洗不干净，但不会不安全 → Class A。'},
+      {q:'加热管温度控制（超温有火灾风险）',a:1,e:'防止不安全运行 → Class B（本课程主线）。'},
+      {q:'门锁联锁（运行中开门有夹伤风险）',a:1,e:'应用笔记把"洗衣机门锁"列为 Class B 典型例子。'},
+      {q:'剩余时间显示',a:0,e:'显示错误不影响安全 → Class A。'},
+      {q:'自动燃烧器点火控制',a:2,e:'防止特殊危险（燃气泄漏/爆燃）→ Class C。'}];
+    el.innerHTML=`<h4>交互实验 · Class A/B/C 判断器</h4><div class="snote">E｜教学示例（正式定级需认证机构确认）。判断下列控制功能的分级：</div>
+      <div class="disp" id="caQ"></div><div class="ctrl" id="caBtns"><button data-v="0">Class A</button><button data-v="1">Class B</button><button data-v="2">Class C</button></div><div class="disp" id="caOut">从第 1 题开始。</div>`;
+    let i=0,ok=0; const qEl=el.querySelector('#caQ'),o=el.querySelector('#caOut');
+    const show=()=>{qEl.textContent=(i<qs.length)?`Q${i+1}/5：${qs[i].q}`:'全部完成！';};
+    el.querySelectorAll('#caBtns button').forEach(b=>b.onclick=()=>{
+      if(i>=qs.length)return;
+      const v=+b.dataset.v;
+      if(v===qs[i].a){ok++;o.className='disp good';o.textContent='✓ 正确。'+qs[i].e;}
+      else{o.className='disp bad';o.textContent='✗ 再想想。'+qs[i].e;}
+      i++;setTimeout(()=>{if(i<qs.length){show();o.className='disp';o.textContent=`当前得分 ${ok}/${i}`;}else{o.className='disp good';o.textContent=`完成：${ok}/5 正确。记住：分级对象是"功能"，混合分级很常见。`;}},1400);
+    });show();
+  };
+  /* --- 周期调度器 --- */
+  window.SIMS.simScheduler = function(el){
+    const seq=['CPU','RAM_BUF','RAM','STACK','CRC','ADC','TEMP'];
+    el.innerHTML=`<h4>交互实验 · 80ms 周期轮转模拟</h4><div class="snote">E｜教学示例，模拟 PeriodicTestCallBack 状态机（非真实硬件）。</div>
+    <div class="ctrl"><button id="scTick">+1 节拍 (80ms)</button><button id="scAuto" class="ghost">自动运行</button><button id="scReset" class="ghost">复位</button><span style="font-size:12px;color:var(--sub)">轮次/指针：</span><span class="disp" style="min-width:90px;margin:0;padding:4px 10px" id="scIdx">CPU</span></div>
+    <div class="disp" id="scLog">节拍日志：</div>`;
+    let idx=0,tick=0,timer=null;const log=el.querySelector('#scLog');
+    el.querySelector('#scTick').onclick=()=>step();
+    el.querySelector('#scAuto').onclick=e=>{if(timer){clearInterval(timer);timer=null;e.target.textContent='自动运行';}else{timer=setInterval(step,600);e.target.textContent='停止';}};
+    el.querySelector('#scReset').onclick=()=>{idx=0;tick=0;log.textContent='节拍日志：';el.querySelector('#scIdx').textContent=seq[0];};
+    function step(){tick++;const t=seq[idx];idx=(idx+1)%seq.length;
+      log.textContent=`节拍日志：\n[${String(tick*80).padStart(5)}ms] 执行 ${t}${t==='CRC'?'（分段累加，多轮覆盖全片）':''}`;
+      log.textContent='\n'+log.textContent.trim();el.querySelector('#scIdx').textContent=seq[idx];}
+  };
+  /* --- CPU 0x55/0xAA --- */
+  window.SIMS.simCPU = function(el){
+    el.innerHTML=`<h4>交互实验 · CPU 寄存器 0x55/0xAA 测试模拟</h4><div class="snote">E｜教学示例：8 位简化模型，非真实寄存器操作。</div>
+    <div class="ctrl"><label style="font-size:12.5px;color:var(--sub)">注入故障：<select id="cpuFault"><option value="none">无故障</option><option value="stuck0">b3 卡 0</option><option value="stuck1">b4 卡 1</option></select></label>
+    <button id="cpuRun">执行测试</button></div>
+    <div class="disp" id="cpuOut">写入图样 → 读回比对。执行测试看结果。</div>`;
+    const out=el.querySelector('#cpuOut');
+    el.querySelector('#cpuRun').onclick=()=>{
+      const f=el.querySelector('#cpuFault').value;
+      const w1=0x55,w2=0xAA;
+      const rd=v=>{let r=v;if(f==='stuck0')r&=~0x08;if(f==='stuck1')r|=0x10;return r>>>0;};
+      const b=v=>('00000000'+v.toString(2)).slice(-8);
+      let lines=[`写 0x55 (${b(w1)}) → 读回 0x${rd(w1).toString(16).toUpperCase()} (${b(rd(w1))}) ${rd(w1)===w1?'✓':'✗ 不一致！卡位检出'}`,
+                 `写 0xAA (${b(w2)}) → 读回 0x${rd(w2).toString(16).toUpperCase()} (${b(rd(w2))}) ${rd(w2)===w2?'✓':'✗ 不一致！卡位检出'}`];
+      const pass=rd(w1)===w1&&rd(w2)===w2;
+      out.className='disp '+(pass?'good':'bad');
+      out.textContent=lines.join('\n')+(pass?'\n→ PASS：寄存器健康':(f==='stuck0'?'\n→ FAIL：卡 0 在写 0x55 时暴露（互补图样缺一不可）':'\n→ FAIL：卡 1 在写 0xAA 时暴露'));
+    };
+  };
+  /* --- March C --- */
+  window.SIMS.simMarch = function(el){
+    el.innerHTML=`<h4>交互实验 · March-C 六步动画（16 单元简化）</h4><div class="snote">E｜教学示例。蓝色=0 绿=1；可注入"写 A 影响 B"耦合故障。</div>
+    <div class="ctrl"><label style="font-size:12.5px;color:var(--sub)"><input type="checkbox" id="mCouple" style="accent-color:var(--accent)"> 注入耦合故障（STEP2 写 n 时 n+1 被带翻）</label>
+    <button id="mRun">▶ 单步执行</button><button id="mAuto" class="ghost">自动</button><button id="mRst" class="ghost">复位</button></div>
+    <div class="cellbox" id="mGrid"></div><div class="disp" id="mOut">STEP1 待执行：全写 0。</div>`;
+    const grid=el.querySelector('#mGrid'),out=el.querySelector('#mOut');
+    let cells,step;const N=16;
+    function reset(){cells=Array(N).fill(0);step=0;draw(-1);out.className='disp';out.textContent='STEP1 待执行：全写 0。';}
+    function draw(cur){grid.innerHTML=cells.map((v,i)=>`<div class="cell ${v?'c1':'c0'} ${i===cur?'cur':''}">${i}</div>`).join('');}
+    // steps: each = {dir, mode}  mode: w0 (write 0, read prev 1 implied), simplified: read-then-write sequences
+    function doStep(){
+      const couple=el.querySelector('#mCouple').checked;
+      if(step===0){cells.fill(0);out.textContent='STEP1：全写 0 ✓';step=1;}
+      else if(step>=1&&step<=4){
+        const up=step<=2;const read=step%2===1?(step===1?0:1):(step===2?1:0);
+        // map: step1=up read0 write1; step2=up read1 write0; step3=down read0 write1; step4=down read1 write0
+        const seqI=step-1;const idxs=[];for(let k=0;k<N;k++)idxs.push(up?k:N-1-k);
+        let cur=idxs[(marchPos++)%N];
+        const expect=(step===1||step===3)?0:1;const write=expect?0:1;
+        // actually: step1: read0 write1; step2: read1 write0; step3: read0 write1(down); step4: read1 write0(down)
+        const writeVal=(step===1||step===3)?1:0;
+        let msg=`STEP${step+1}（${up?'↑升序':'↓降序'}，地址 ${cur}）：读 ${expect===0?'0':'1'} → 写 ${writeVal}`;
+        let fault=false;
+        if(cells[cur]!==expect){msg+=' ✗ 读到 '+cells[cur]+'——卡位/残留检出！';fault=true;}
+        cells[cur]=writeVal;
+        if(couple&&step===1&&cur%2===0&&cur+1<N){cells[cur+1]^=1;msg+=' ⚡耦合：写 n 带翻 n+1（此时未被读，STEP 后续会暴露）';}
+        out.textContent=msg;out.className='disp '+(fault?'bad':'');
+        draw(cur);
+        if(marchPos>=N){marchPos=0;step++;if(step===5){const ok=cells.every(v=>v===0);out.textContent=ok?'STEP6：全读 0 ✓ → PASS':(out.textContent+'\nSTEP6：全读 0 ✗ 有单元非 0 → FAIL（耦合残留暴露！）');out.className='disp '+(ok?'good':'bad');}}
+      }
+      if(step>=6&&step!==0){}
+    }
+    let marchPos=0;
+    el.querySelector('#mRun').onclick=doStep;
+    el.querySelector('#mAuto').onclick=e=>{if(e.target._t){clearInterval(e.target._t);e.target._t=null;e.target.textContent='自动';}else{e.target._t=setInterval(()=>{if(step<6)doStep();else{clearInterval(e.target._t);e.target._t=null;e.target.textContent='自动';}},150);}};
+    el.querySelector('#mRst').onclick=()=>{marchPos=0;reset();};
+    reset();
+  };
+  /* --- 时钟/看门狗 --- */
+  window.SIMS.simClock = function(el){
+    el.innerHTML=`<h4>交互实验 · CAC 测频 + 看门狗超时模拟</h4><div class="snote">E｜教学示例：拖动滑块模拟主频漂移与喂狗间隔。</div>
+    <div class="ctrl"><span style="font-size:12.5px;color:var(--sub)">主频漂移：</span><input type="range" id="clkDrift" min="-30" max="30" value="0"><span class="disp" style="margin:0;padding:2px 10px" id="clkV">0%</span>
+    <span style="font-size:12.5px;color:var(--sub)">喂狗间隔：</span><input type="range" id="wdIv" min="50" max="300" value="100"><span class="disp" style="margin:0;padding:2px 10px" id="wdV">100ms</span></div>
+    <div class="disp" id="clkOut"></div>`;
+    const upd=()=>{const d=+el.querySelector('#clkDrift').value,w=+el.querySelector('#wdIv').value;
+      el.querySelector('#clkV').textContent=d+'%';el.querySelector('#wdV').textContent=w+'ms';
+      let s1=(Math.abs(d)<=5)?'✓ CAC：频率比在 ±5% 容差内 → 正常':'✗ CAC：频率比越容差 → Clock_Test_Failure 触发';
+      let s2=(w<=200)?'✓ IWDT：喂狗间隔 < 超时窗口(200ms) → 正常':'✗ IWDT：喂狗间隔超窗口 → 超时复位（Check_ResetCause 将识别）';
+      el.querySelector('#clkOut').innerHTML=`<span class="${Math.abs(d)<=5?'good':'bad'}">${s1}</span>\n<span class="${w<=200?'good':'bad'}">${s2}</span>\n<span style="color:var(--sub)">思考：漂移 3% 时 CAC 说正常——你的"安全定时任务"能容忍 3% 吗？容差参数就是集成决策。</span>`;};
+    el.querySelectorAll('input').forEach(i=>i.oninput=upd);upd();
+  };
+  /* --- ADC --- */
+  window.SIMS.simADC = function(el){
+    el.innerHTML=`<h4>交互实验 · ADC 参考校验模拟</h4><div class="snote">E｜教学示例：10 位 ADC 满量程 3.3V，采样已知 1.5V 内部参考。</div>
+    <div class="ctrl"><span style="font-size:12.5px;color:var(--sub)">转换增益误差：</span><input type="range" id="adcG" min="-15" max="15" value="0"><span class="disp" style="margin:0;padding:2px 10px" id="adcV">0%</span></div>
+    <div class="disp" id="adcOut"></div>`;
+    const upd=()=>{const g=+el.querySelector('#adcG').value;el.querySelector('#adcV').textContent=g+'%';
+      const ideal=Math.round(1.5/3.3*1023);const meas=Math.round(ideal*(1+g/100));
+      const pass=Math.abs(g)<=3;
+      el.querySelector('#adcOut').className='disp '+(pass?'good':'bad');
+      el.querySelector('#adcOut').textContent=`期望码值 ${ideal}（1.5V/3.3V×1023）\n实测码值 ${meas}（增益 ${g}%）\n→ ${pass?'PASS：转换链路正常（±3% 容差内）':'FAIL：增益越限 → ADC_Test_Failure'}\n注意：这测的是 ADC 本身——NTC 老化漂移不在其覆盖内（应用层传感器诊断补位）。`;};
+    el.querySelector('#adcG').oninput=upd;upd();
+  };
+  /* --- 状态机 --- */
+  window.SIMS.simFSM = function(el){
+    const steps=['RESET','PWR_CPU','PWR_RAM','PWR_CRC','PWR_ADC','IWDT_ON','MON_INIT','RUNNING'];
+    el.innerHTML=`<h4>交互实验 · 自检状态机推演</h4><div class="snote">E｜教学示例。逐阶段推进；可注入上电故障。</div>
+    <div class="ctrl"><button id="fsmNext">推进 →</button><select id="fsmInject"><option value="">不注入</option><option value="1">PWR_CPU 失败</option><option value="3">PWR_CRC 失败</option></select><button id="fsmR" class="ghost">复位</button></div>
+    <div class="disp" id="fsmOut">当前状态：RESET</div>`;
+    let i=0;const out=el.querySelector('#fsmOut');
+    el.querySelector('#fsmNext').onclick=()=>{const inj=el.querySelector('#fsmInject').value;
+      if(i>=steps.length-1){out.className='disp good';out.textContent='RUNNING：周期轮转开始（每 80ms），监测已全部挂上。';return;}
+      i++;
+      if(inj&&+inj===i){out.className='disp bad';out.textContent=`✗ ${steps[i]} FAIL → Error_Detected_Latch（上电失败=拒绝进入运行态，锁存 errno=${i}）`;return;}
+      out.className='disp good';out.textContent='→ '+steps[i]+(steps[i]==='IWDT_ON'?'（IWDT 最后初始化——防止上电测试被误杀）':steps[i]==='MON_INIT'?'（CAC/LVD/温度/POE 配置一次持续工作）':'');
+    };
+    el.querySelector('#fsmR').onclick=()=>{i=0;out.className='disp';out.textContent='当前状态：RESET';};
+  };
+  /* --- 追踪表 --- */
+  window.SIMS.simTrace = function(el){
+    const seed=[['Class B CPU 测试（S/待核实）','库 CPU_Test_All（R）','—','TC-CPU-01 上电 PASS','待填'],
+      ['Class B ROM 完整性','CRC 注入+比对（R）','512KB 范围','TC-FLASH-03 注入检出','待填'],
+      ['洗衣机加热安全（E）','POEG 硬件关断（R）','GTIOC0A/B','TC-POE-01 实测关断','待填']];
+    el.innerHTML=`<h4>交互实验 · 需求追踪表编辑器</h4><div class="snote">E｜教学示例。编辑内容自动保存到本浏览器（localStorage），仅练习用。</div>
+    <div class="ctrl"><button id="trAdd">+ 增加一行</button><button id="trClr" class="ghost">清空</button></div>
+    <div style="overflow-x:auto"><table id="trTable" style="width:100%;border-collapse:collapse;font-size:12px">
+    <thead><tr>${['需求','设计决策','集成参数','验证用例','结果/证据',''].map(h=>`<th style="padding:6px 8px;border:1px solid var(--line);color:var(--sub);text-align:left">${h}</th>`).join('')}</tr></thead><tbody></tbody></table></div>`;
+    const tb=el.querySelector('tbody'),KEY='iec_trace_v1';
+    let rows;try{rows=JSON.parse(localStorage.getItem(KEY))||seed;}catch(e){rows=seed;}
+    const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(rows));}catch(e){}};
+    const render=()=>{tb.innerHTML=rows.map((r,ri)=>'<tr>'+r.map((c,ci)=>`<td style="padding:4px;border:1px solid var(--line)"><input value="${(c||'').replace(/"/g,'&quot;')}" data-r="${ri}" data-c="${ci}" style="width:100%;background:transparent;border:none;color:var(--txt);font-size:12px"></td>`).join('')+`<td style="padding:4px;border:1px solid var(--line)"><button class="ghost" data-del="${ri}" style="font-size:11px;padding:2px 8px">删</button></td></tr>`).join('');
+      tb.querySelectorAll('input').forEach(inp=>inp.onchange=()=>{rows[+inp.dataset.r][+inp.dataset.c]=inp.value;save();});
+      tb.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{rows.splice(+b.dataset.del,1);save();render();});};
+    el.querySelector('#trAdd').onclick=()=>{rows.push(['','','','','']);save();render();};
+    el.querySelector('#trClr').onclick=()=>{if(confirm('清空追踪表？')){rows=[['','','','','']];save();render();}};
+    render();
+  };
+};
+
+</script>
+<script>
+/* 课程应用：导航/渲染/测验/搜索/进度/术语与来源弹窗 */
+(function(){
+'use strict';
+const CH = window.CHP;
+const ORDER = ['ch01','ch02','ch03','ch04','ch05','ch06','ch07','ch08','ch09','ch10','ch11','ch12','ch13','ch14','labA','labB','labC'];
+const STAGES = {1:'第一阶段 · 标准基础',2:'第二阶段 · 自检原理',3:'第三阶段 · RA2E1 工程实践',4:'第四阶段 · 验证与综合（含实训）'};
+const KEY = 'iec_course_v1';
+let cur = localStorage.getItem(KEY+'_cur') || 'ch01';
+let state; try{state = JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){state={};}
+state.done = state.done||{}; state.quiz = state.quiz||{};
+const $ = s=>document.querySelector(s);
+
+/* ===== 侧栏 ===== */
+function buildNav(){
+  const sb = $('#sidebar'); let html='', lastStage=null;
+  ORDER.forEach(id=>{const ch=CH[id];
+    if(ch.stage!==lastStage){html+=`<div class="stage-l">${STAGES[ch.stage]}</div>`;lastStage=ch.stage;}
+    const done=state.done[id];
+    html+=`<div class="nav-u ${id===cur?'active':''} ${done?'done':''}" data-id="${id}"><span class="no">${done?'✓':ch.no}</span>${ch.title}</div>`;});
+  sb.innerHTML=html;
+  sb.querySelectorAll('.nav-u').forEach(n=>n.onclick=()=>go(n.dataset.id));
+}
+function go(id){cur=id;localStorage.setItem(KEY+'_cur',id);render();buildNav();
+  const a=$(`.nav-u[data-id="${id}"]`); if(a)a.scrollIntoView({block:'nearest'});
+  window.scrollTo({top:0});}
+
+/* ===== 术语高亮 ===== */
+function glossTerms(html){
+  Object.keys(window.GLOSSARY).forEach(k=>{
+    const kk=k.replace(/[.*+?^${}()|[\]\\]/g,'\\$&').replace(/ \(.+\)$/,'');
+    if(html.includes(k))html=html.replace(new RegExp('(?<![\\w<">#;])'+kk+'(?![\\w>])','g'),`<span class="term" data-g="${k}">${kk}</span>`);
+  });
+  return html;
+}
+
+/* ===== 来源卡 ===== */
+function tagHtml(tag,src){
+  const cls=tag==='S'?'S':tag==='R'?'R':tag==='E'?'E':'T';
+  const label=tag==='T'?'待核实':tag+'｜'+(window.SRCMAP[src]?window.SRCMAP[src].t.split('｜')[1]:'教学示例');
+  return `<span class="tag tag-${cls}" data-src="${src}">${label}</span>`;
+}
+function showSrc(e){
+  const src=e.target.dataset.src;const m=window.SRCMAP[src];
+  const pop=$('#srcPop');
+  if(!m){pop.innerHTML=`<h5>E｜教学示例</h5><p>本内容为自行构造的教学材料，不代表 Renesas 官方代码，也不能直接证明产品符合 IEC 60730。</p>`;}
+  else{pop.innerHTML=`<h5>${m.t}</h5><dl>
+    <dt>来源文档</dt><dd>${m.doc}</dd><dt>版本/编号</dt><dd>${m.ver||'—'}</dd>
+    <dt>位置/参考</dt><dd>${m.ref}</dd><dt>适用 MCU</dt><dd>${m.mcu||'—'}</dd>
+    <dt>核实状态</dt><dd>${m.verified}</dd><dt>备注</dt><dd>${m.note||'—'}</dd></dl>`;}
+  pop.style.display='block';
+  const w=pop.offsetWidth,h=pop.offsetHeight;
+  pop.style.left=Math.min(e.clientX+12,innerWidth-w-12)+'px';
+  pop.style.top=Math.min(e.clientY+12,innerHeight-h-12)+'px';
+}
+
+/* ===== 渲染章节 ===== */
+function render(){
+  const ch=CH[cur];
+  const ut=$('#unitTitle'); if(ut)ut.textContent=STAGES[ch.stage]+' · '+ch.no+' '+ch.title;
+  let h=`<h1 class="ch"><span class="no">${ch.no}</span> ${ch.title}</h1>`;
+  h+=`<div class="ch-lead"><h4>本章导读</h4>
+    <p><b>解决什么问题：</b>${ch.lead.goal}</p>
+    <p><b>为什么学：</b>${ch.lead.why}</p>
+    <p class="dim">前置：${ch.lead.pre}　│　在课程中的位置：${ch.lead.rel}</p>
+    <label class="ckm ${state.done[ch.id]?'done':''}"><input type="checkbox" id="chDone" ${state.done[ch.id]?'checked':''}> 本章已完成</label></div>`;
+  h+=`<h2 class="sec">核心概念</h2>`;
+  (ch.concepts||[]).forEach((c,i)=>{
+    h+=`<div class="kp open"><div class="kp-h" data-kp="${i}"><span class="t">${c.t}</span>${tagHtml(c.tag,c.src)}<label class="ckm ${state.kp&&state.kp[cur+i]?'done':''}"><input type="checkbox" class="kpck" data-k="${cur+i}" ${state.kp&&state.kp[cur+i]?'checked':''}>已理解</label><span class="arr">▶</span></div>
+      <div class="kp-b"><p class="def">${c.def}</p>${glossTerms(c.body)}</div></div>`;
+  });
+  (ch.figs||[]).forEach(fk=>{const f=window.FIGURES[fk];
+    if(f)h+=`<div class="fig">${f.svg}<div class="cap">${(ch.figcaps&&ch.figcaps[fk])||''}</div></div>`;});
+  if(ch.sim){h+=`<div class="sim" id="sim_${ch.sim}"><h4>交互实验加载中…</h4></div>`;}
+  if(ch.code)ch.code.forEach(cd=>{
+    h+=`<div class="codebox"><div class="chd"><span class="src">${cd.title} · ${cd.src}</span><button class="cp">复制</button></div><pre>${cd.code.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</pre></div>`;});
+  if(ch.quiz&&ch.quiz.length){
+    h+=`<div class="quiz"><h4>章节测验（${ch.quiz.length} 题）</h4>`;
+    ch.quiz.forEach((q,qi)=>{
+      h+=`<div class="q" data-q="${qi}"><div class="qt">${qi+1}. ${q.q}</div>`;
+      q.opts.forEach((o,oi)=>h+=`<button class="opt" data-o="${oi}">${String.fromCharCode(65+oi)}. ${o}</button>`);
+      h+=`<div class="exp" id="exp_${qi}"></div></div>`;});
+    h+=`</div>`;}
+  h+=`<div class="summary"><h4>本章总结</h4><ul>${(ch.summary||[]).map(s=>`<li>${s}</li>`).join('')}</ul><div class="nextch">${ch.next||''}</div></div>`;
+  const nextIdx=ORDER.indexOf(cur)+1;
+  if(nextIdx<ORDER.length)h+=`<div style="text-align:center;margin-top:20px"><button class="tbtn" id="nextBtn" style="padding:10px 26px">下一单元：${CH[ORDER[nextIdx]].no} ${CH[ORDER[nextIdx]].title} →</button></div>`;
+  $('#main').innerHTML=h;
+  bind();
+  if(ch.sim&&window.SIMS[ch.sim])window.SIMS[ch.sim]($('#sim_'+ch.sim));
+}
+function bind(){
+  const m=$('#main');
+  m.querySelectorAll('.kp-h').forEach(h=>h.addEventListener('click',e=>{
+    if(e.target.closest('.ckm'))return; h.parentElement.classList.toggle('open');}));
+  m.querySelectorAll('#chDone').forEach(c=>c.onchange=()=>{state.done[cur]=c.checked;save();buildNav();updProg();});
+  m.querySelectorAll('.kpck').forEach(c=>c.onchange=()=>{state.kp=state.kp||{};state.kp[c.dataset.k]=c.checked;c.closest('.ckm').classList.toggle('done',c.checked);save();updProg();});
+  m.querySelectorAll('.tag').forEach(t=>t.onclick=showSrc);
+  m.querySelectorAll('.term').forEach(t=>t.onclick=e=>{const pop=$('#glossPop');pop.innerHTML='<b>'+t.dataset.g+'</b><p style="margin-top:6px">'+window.GLOSSARY[t.dataset.g]+'</p>';
+    pop.style.display='block';const w=pop.offsetWidth;pop.style.left=Math.min(e.clientX+10,innerWidth-w-10)+'px';pop.style.top=(e.clientY+14)+'px';});
+  m.querySelectorAll('.q').forEach(qd=>{
+    const qi=+qd.dataset.q, q=CH[cur].quiz[qi];
+    qd.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{
+      const oi=+b.dataset.o, exp=qd.querySelector('.exp');
+      qd.querySelectorAll('.opt').forEach(x=>{x.classList.remove('right','wrong');x.disabled=false;});
+      if(oi===q.a){b.classList.add('right');}else{b.classList.add('wrong');qd.querySelectorAll('.opt')[q.a].classList.add('right');}
+      exp.innerHTML='<b>'+(oi===q.a?'正确。':'再想想。正确答案：'+String.fromCharCode(65+q.a)+'。')+'</b> '+q.exp+'　<span class="tag tag-'+q.src[0]+'" data-src="'+q.src+'">'+q.src+'</span>';
+      exp.classList.add('show');exp.querySelectorAll('.tag').forEach(t=>t.onclick=showSrc);
+      if(oi===q.a)state.quiz[cur+qi]=true;save();updProg();
+    });
+    if(state.quiz[cur+qi]){/*已答对过，标灰*/qd.querySelectorAll('.opt')[q.a].classList.add('right');exp_show(qd,q);}
+  });
+  function exp_show(qd,q){const exp=qd.querySelector('.exp');exp.innerHTML='<b>已掌握。</b> '+q.exp;exp.classList.add('show');}
+  const nb=$('#nextBtn');if(nb)nb.onclick=()=>go(ORDER[ORDER.indexOf(cur)+1]);
+  m.querySelectorAll('.cp').forEach(b=>b.onclick=()=>{const pre=b.closest('.codebox').querySelector('pre');
+    navigator.clipboard&&navigator.clipboard.writeText(pre.textContent);b.textContent='已复制';setTimeout(()=>b.textContent='复制',1200);});
+}
+
+/* ===== 进度 ===== */
+function updProg(){
+  const total=ORDER.length+Object.keys(CH).reduce((n,id)=>n+CH[id].concepts.length+CH[id].quiz.length,0);
+  let d=Object.values(state.done).filter(Boolean).length;
+  d+=Object.values(state.kp||{}).filter(Boolean).length;
+  d+=Object.values(state.quiz||{}).filter(Boolean).length;
+  const p=Math.round(d/total*100);
+  $('#progressFill').style.width=p+'%';$('#progressMini').innerHTML='<b>'+p+'%</b> '+d+'/'+total;
+  state._p=p;save();
+}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(state));}catch(e){}}
+
+/* ===== 搜索 ===== */
+function doSearch(kw){
+  const box=$('#searchRes');if(!kw){box.style.display='none';return;}
+  kw=kw.toLowerCase();const res=[];
+  ORDER.forEach(id=>{const ch=CH[id];
+    if((ch.no+' '+ch.title).toLowerCase().includes(kw))res.push({t:ch.no+' '+ch.title,p:'章节',id});
+    (ch.concepts||[]).forEach(c=>{if(c.t.toLowerCase().includes(kw))res.push({t:c.t,p:ch.no+' 章 · 概念',id});});
+    (ch.quiz||[]).forEach(q=>{if(q.q.toLowerCase().includes(kw))res.push({t:q.q.slice(0,40)+'…',p:ch.no+' 章 · 测验',id});});
+  });
+  Object.keys(window.GLOSSARY).forEach(k=>{if(k.toLowerCase().includes(kw))res.push({t:k,p:'术语表',id:null});});
+  box.innerHTML=res.slice(0,20).map(r=>`<div class="sr"><div class="t">${r.t}</div><div class="p">${r.p}</div></div>`).join('')||'<div class="sr">无结果</div>';
+  box.style.display='block';
+  box.querySelectorAll('.sr').forEach((el,i)=>{if(res[i]&&res[i].id)el.onclick=()=>{go(res[i].id);box.style.display='none';};else el.onclick=()=>box.style.display='none';});
+}
+
+/* ===== 主题 ===== */
+function setTheme(t){document.body.classList.toggle('light',t==='light');localStorage.setItem(KEY+'_theme',t);$('#themeBtn').textContent=t==='light'?'🌙 深色':'☀️ 浅色';}
+
+/* ===== 启动 ===== */
+document.addEventListener('DOMContentLoaded',function(){
+  window.initSims();
+  buildNav();render();updProg();
+  setTheme(localStorage.getItem(KEY+'_theme')||'dark');
+  $('#themeBtn').onclick=()=>setTheme(document.body.classList.contains('light')?'dark':'light');
+  $('#searchBox').oninput=e=>doSearch(e.target.value.trim());
+  $('#searchBox').onblur=()=>setTimeout(()=>$('#searchRes').style.display='none',200);
+  $('#searchBox').onfocus=e=>{if(e.target.value.trim())doSearch(e.target.value.trim());};
+  document.addEventListener('click',e=>{
+    if(!e.target.closest('.tag')&&!e.target.closest('#srcPop'))$('#srcPop').style.display='none';
+    if(!e.target.closest('.term')&&!e.target.closest('#glossPop'))$('#glossPop').style.display='none';
+  });
+});
+})();
+
+</script>
+</body>
+</html>
